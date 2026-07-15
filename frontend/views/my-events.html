@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Events – Mero Planner</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/dashboard.css"/>
+  <link rel="stylesheet" href="/css/app.css"/>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo">🗓️</div>
+      <div>
+        <div class="sidebar-title">Mero Planner</div>
+        <div class="sidebar-sub">मेरो प्लानर</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <p class="nav-section-label">Main</p>
+      <a href="/dashboard" class="nav-item">📊 Dashboard</a>
+      <a href="/my-events.html" class="nav-item active">📅 My Events <span class="nav-count" id="navEventCount">0</span></a>
+      <a href="/guest-list.html" class="nav-item">👥 Guest List</a>
+
+      <p class="nav-section-label">Management</p>
+      <a href="/budget.html" class="nav-item">💰 Budget</a>
+      <a href="/vendors.html" class="nav-item">🏪 Vendors</a>
+      <a href="/checklist.html" class="nav-item">✅ Checklists</a>
+
+      <p class="nav-section-label">Insights</p>
+      <a href="#" class="nav-item">📈 Analytics</a>
+
+      <a href="/logout" class="nav-item logout">🚪 Logout</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-content">
+    <header class="topbar">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <h2 class="page-title">My Events</h2>
+      <div class="topbar-right" style="margin-left:auto;">
+        <button class="btn-new-event" onclick="window.location.href='/create-event.html'">+ Create Event</button>
+      </div>
+    </header>
+
+    <div class="content-area">
+      <div id="alertBox" class="alert-msg"></div>
+
+      <!-- Toolbar -->
+      <div class="page-toolbar">
+        <div class="toolbar-search">
+          <input type="text" id="searchInput" placeholder="🔍 Search by event name, category or location…"/>
+        </div>
+      </div>
+
+      <!-- Events Grid -->
+      <div id="eventsGrid" class="cards-grid"></div>
+      <div id="emptyState" class="empty-state" style="display:none;">No events found. Click <strong>+ Create Event</strong> to add one.</div>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT EVENT MODAL -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>Edit Event</h3>
+      <button class="modal-close" onclick="closeEditModal()">✕</button>
+    </div>
+    <div id="editAlertBox" class="alert-msg"></div>
+    <form id="editEventForm">
+      <input type="hidden" id="edit_id"/>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Event Name <span class="req">*</span></label>
+          <input type="text" id="edit_event_name" required/>
+        </div>
+        <div class="form-group">
+          <label>Category <span class="req">*</span></label>
+          <select id="edit_category" required>
+            <option value="Wedding">Wedding</option>
+            <option value="Engagement">Engagement</option>
+            <option value="Mehendi">Mehendi</option>
+            <option value="Sangeet">Sangeet</option>
+            <option value="Reception">Reception</option>
+            <option value="Anniversary">Anniversary</option>
+            <option value="Birthday">Birthday</option>
+            <option value="Baby Shower">Baby Shower</option>
+            <option value="Corporate Event">Corporate Event</option>
+            <option value="Post-Wedding Party">Post-Wedding Party</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Event Location <span class="req">*</span></label>
+          <input type="text" id="edit_location" required/>
+        </div>
+        <div class="form-group">
+          <label>Event Date <span class="req">*</span></label>
+          <input type="date" id="edit_event_date" required/>
+        </div>
+        <div class="form-group">
+          <label>Event Time <span class="req">*</span></label>
+          <input type="time" id="edit_event_time" required/>
+        </div>
+        <div class="form-group">
+          <label>Estimated Budget (Rs) <span class="req">*</span></label>
+          <input type="number" id="edit_estimated_budget" min="0" step="0.01" required/>
+        </div>
+        <div class="form-group">
+          <label>Expected Guests <span class="req">*</span></label>
+          <input type="number" id="edit_expected_guests" min="1" required/>
+        </div>
+        <div class="form-group">
+          <label>Status <span class="req">*</span></label>
+          <select id="edit_status" required>
+            <option value="Upcoming">Upcoming</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>Description</label>
+          <textarea id="edit_description" rows="3"></textarea>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn-primary">Save Changes</button>
+        <button type="button" class="btn-secondary" onclick="closeEditModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/js/nav.js"></script>
+<script src="/js/my-events.js"></script>
+</body>
+</html>

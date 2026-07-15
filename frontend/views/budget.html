@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Budget – Mero Planner</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/dashboard.css"/>
+  <link rel="stylesheet" href="/css/app.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo">🗓️</div>
+      <div>
+        <div class="sidebar-title">Mero Planner</div>
+        <div class="sidebar-sub">मेरो प्लानर</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <p class="nav-section-label">Main</p>
+      <a href="/dashboard" class="nav-item">📊 Dashboard</a>
+      <a href="/my-events.html" class="nav-item">📅 My Events <span class="nav-count" id="navEventCount">0</span></a>
+      <a href="/guest-list.html" class="nav-item">👥 Guest List</a>
+
+      <p class="nav-section-label">Management</p>
+      <a href="/budget.html" class="nav-item active">💰 Budget</a>
+      <a href="/vendors.html" class="nav-item">🏪 Vendors</a>
+      <a href="/checklist.html" class="nav-item">✅ Checklists</a>
+
+      <p class="nav-section-label">Insights</p>
+      <a href="#" class="nav-item">📈 Analytics</a>
+    
+      <a href="/logout" class="nav-item logout">🚪 Logout</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-content">
+    <header class="topbar">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <h2 class="page-title">Budget</h2>
+      <div class="toolbar-filters" style="margin-left:16px;">
+        <select id="eventSelect" style="min-width:220px;"><option value="">Select an event…</option></select>
+      </div>
+      <div class="topbar-right">
+        <button class="btn-new-event" onclick="openExpenseModal()">+ Add Expense</button>
+      </div>
+    </header>
+
+    <div class="content-area">
+      <div id="alertBox" class="alert-msg"></div>
+      <div id="noEventState" class="empty-state">Select or create an event above to manage its budget.</div>
+
+      <div id="budgetContent" style="display:none;">
+
+        <!-- Summary Cards -->
+        <div class="summary-row">
+          <div class="stat-card">
+            <div class="stat-icon red">💰</div>
+            <div class="stat-value" id="statTotalBudget">Rs 0</div>
+            <div class="stat-label">Total Budget</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon gold">🧾</div>
+            <div class="stat-value" id="statEstimated">Rs 0</div>
+            <div class="stat-label">Total Estimated</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">✅</div>
+            <div class="stat-value" id="statPaid">Rs 0</div>
+            <div class="stat-label">Total Paid</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon blue">⏳</div>
+            <div class="stat-value" id="statRemaining">Rs 0</div>
+            <div class="stat-label">Remaining Budget</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:22px;">
+          <div class="card-header"><h4>Budget Utilization</h4><span id="utilizationPct" style="font-weight:700;">0%</span></div>
+          <div class="progress-bar"><div class="progress-fill" id="utilizationBar" style="width:0%"></div></div>
+        </div>
+
+        <div class="mid-row">
+          <div class="card">
+            <div class="card-header"><h4>Spending by Category</h4></div>
+            <canvas id="pieChart" height="220"></canvas>
+          </div>
+          <div class="card">
+            <div class="card-header"><h4>Allocated vs Paid</h4></div>
+            <canvas id="barChart" height="220"></canvas>
+          </div>
+        </div>
+
+        <!-- Category tabs -->
+        <div class="card" style="margin-bottom:22px;">
+          <div class="card-header"><h4>Allocate Budget by Category</h4></div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Category</label>
+              <select id="allocCategory"></select>
+            </div>
+            <div class="form-group">
+              <label>Allocation Type</label>
+              <select id="allocType">
+                <option value="percentage">Percentage of Total Budget</option>
+                <option value="fixed">Fixed Amount</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Value</label>
+              <input type="number" id="allocValue" min="0" placeholder="e.g. 20 (for %) or 100000 (fixed)"/>
+            </div>
+            <div class="form-group" style="justify-content:flex-end;">
+              <button class="btn-primary" onclick="allocateBudget()">Allocate</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="category-tabs" id="categoryTabs"></div>
+
+        <!-- Expense Table -->
+        <div class="table-wrap" style="margin-bottom:22px;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Expense</th><th>Category</th><th>Allocated</th><th>Actual Expenses</th><th>Paid</th>
+                <th>Pending</th><th>Status</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="expenseTableBody"></tbody>
+          </table>
+          <div id="emptyExpenses" class="empty-state" style="display:none;">No expenses yet for this event. Click <strong>+ Add Expense</strong> to add one.</div>
+        </div>
+
+        <!-- Smart Recommendation Panel -->
+        <div class="card" style="margin-bottom:22px;">
+          <div class="card-header"><h4>💡 Smart Recommendations</h4><span id="healthScore" style="font-weight:700;"></span></div>
+          <div id="recommendationsList"></div>
+        </div>
+
+        <!-- Reallocation Panel -->
+        <div class="card">
+          <div class="card-header"><h4>🔁 Suggested Budget Reallocation</h4></div>
+          <div id="reallocationList"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD/EDIT EXPENSE MODAL -->
+<div class="modal-overlay" id="expenseModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="expenseModalTitle">Add Expense</h3>
+      <button class="modal-close" onclick="closeExpenseModal()">✕</button>
+    </div>
+    <div id="expenseAlertBox" class="alert-msg"></div>
+    <form id="expenseForm">
+      <input type="hidden" id="expense_id"/>
+      <div class="form-group">
+        <label>Expense Name <span class="req">*</span></label>
+        <input type="text" id="expense_name" required/>
+      </div>
+      <div class="form-group">
+        <label>Budget Category <span class="req">*</span></label>
+        <select id="expense_category_id" required></select>
+      </div>
+      <div class="form-group">
+        <label>Estimated Amount (NPR) <span class="req">*</span></label>
+        <input type="number" id="estimated_amount" min="0.01" step="0.01" required/>
+      </div>
+      <div class="form-group">
+        <label>Notes (Optional)</label>
+        <textarea id="notes" rows="2"></textarea>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn-primary">Save Expense</button>
+        <button type="button" class="btn-secondary" onclick="closeExpenseModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- EXPENSE DETAILS / PAYMENTS MODAL -->
+<div class="modal-overlay" id="detailsModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="detailsTitle">Expense Details</h3>
+      <button class="modal-close" onclick="closeDetailsModal()">✕</button>
+    </div>
+    <div id="detailsAlertBox" class="alert-msg"></div>
+    <div id="detailsSummary" style="margin-bottom:16px; font-size:13px; color:#444; line-height:1.8;"></div>
+
+    <h4 style="font-size:13px; margin-bottom:10px;">Add Payment</h4>
+    <form id="paymentForm" style="display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap;">
+      <input type="hidden" id="payment_item_id"/>
+      <input type="number" id="payment_amount" placeholder="Amount (NPR)" min="0.01" step="0.01" style="flex:1; min-width:140px; padding:9px 12px; border:1.5px solid #f0e8da; border-radius:8px;" required/>
+      <input type="date" id="payment_date" style="padding:9px 12px; border:1.5px solid #f0e8da; border-radius:8px;" required/>
+      <button type="submit" class="btn-primary">Add Payment</button>
+    </form>
+
+    <h4 style="font-size:13px; margin-bottom:10px;">Payment History</h4>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Amount</th><th>Date</th><th>Actions</th></tr></thead>
+        <tbody id="paymentHistoryBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="/js/nav.js"></script>
+<script src="/js/budget.js"></script>
+</body>
+</html>

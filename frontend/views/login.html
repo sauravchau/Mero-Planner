@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mero Planner – Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/login.css" />
+</head>
+<body>
+
+<div class="card">
+
+  <!-- LEFT PANEL -->
+  <div class="left">
+    <div class="brand">
+      <div class="logo-icon">🗓️</div>
+      <h1>Mero Planner</h1>
+      <div class="brand-nepali">मेरो प्लानर</div>
+      <div class="brand-tagline">
+        Nepal's smart event planning platform<br>
+        for weddings, bartabanda, engagements and celebrations.
+      </div>
+    </div>
+
+    <div class="features">
+      <div class="feature-item">
+        <div class="feature-icon fi-red">🔥</div>
+        Smart Budget Management
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon fi-blue">📋</div>
+        Dynamic Checklist Generator
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon fi-green">🏪</div>
+        Local Vendor Recommendations
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon fi-gold">👥</div>
+        Guest &amp; Collaboration Tools
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right">
+    <h2>Welcome back</h2>
+    <p class="subtitle">Login to continue planning your event</p>
+
+    <!-- Role Tabs -->
+    <div class="role-tabs">
+      <button class="role-tab active" onclick="setRole(this)">Event Organizer</button>
+      <button class="role-tab" onclick="setRole(this)">Admin</button>
+    </div>
+
+    <!-- Alert -->
+    <div class="alert" id="alert"></div>
+
+    <!-- Form -->
+    <div class="form-body">
+      <div class="field-label">Email Address</div>
+      <div class="input-wrap">
+        <span class="icon">✉️</span>
+        <input type="email" id="email" placeholder="yourname@email.com" />
+      </div>
+
+      <div class="field-label">Password</div>
+      <div class="input-wrap">
+        <span class="icon">🔒</span>
+        <input type="password" id="password" placeholder="••••••••" />
+      </div>
+
+      <div class="row-between">
+        <label class="remember">
+          <input type="checkbox" id="remember" />
+          Remember me
+        </label>
+        <a href="#" class="forgot">Forgot password?</a>
+      </div>
+
+      <button class="btn-login" id="loginBtn" onclick="handleLogin()">
+  Login to Mero Planner
+</button>
+
+<div style="height:40px;"></div>
+
+<p class="signup-link">
+  Don't have an account? <a href="/register">Create one free</a>
+</p>
+    </div>
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script src="/js/login.js"></script>
+</body>
+</html>

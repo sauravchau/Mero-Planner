@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Guest List – Mero Planner</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/dashboard.css"/>
+  <link rel="stylesheet" href="/css/app.css"/>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo">🗓️</div>
+      <div>
+        <div class="sidebar-title">Mero Planner</div>
+        <div class="sidebar-sub">मेरो प्लानर</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <p class="nav-section-label">Main</p>
+      <a href="/dashboard" class="nav-item">📊 Dashboard</a>
+      <a href="/my-events.html" class="nav-item">📅 My Events <span class="nav-count" id="navEventCount">0</span></a>
+      <a href="/guest-list.html" class="nav-item active">👥 Guest List</a>
+
+      <p class="nav-section-label">Management</p>
+      <a href="/budget.html" class="nav-item">💰 Budget</a>
+      <a href="/vendors.html" class="nav-item">🏪 Vendors</a>
+      <a href="/checklist.html" class="nav-item">✅ Checklists</a>
+
+      <p class="nav-section-label">Insights</p>
+      <a href="#" class="nav-item">📈 Analytics</a>
+
+      <a href="/logout" class="nav-item logout">🚪 Logout</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-content">
+    <header class="topbar">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <h2 class="page-title">Guest List</h2>
+      <div class="topbar-right" style="margin-left:auto;">
+        <button class="btn-new-event" onclick="openAddModal()">+ Add Guest</button>
+      </div>
+    </header>
+
+    <div class="content-area">
+      <div id="alertBox" class="alert-msg"></div>
+
+      <!-- Guest Summary Cards -->
+      <div class="summary-row">
+        <div class="stat-card">
+          <div class="stat-icon blue">👥</div>
+          <div class="stat-value" id="statTotal">0</div>
+          <div class="stat-label">Total Guests</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon gold">📨</div>
+          <div class="stat-value" id="statInvited">0</div>
+          <div class="stat-label">Invited Guests</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">✅</div>
+          <div class="stat-value" id="statConfirmed">0</div>
+          <div class="stat-label">Confirmed Guests</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red">⏳</div>
+          <div class="stat-value" id="statPending">0</div>
+          <div class="stat-label">Pending Invitations</div>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="page-toolbar">
+        <div class="toolbar-search">
+          <input type="text" id="searchName" placeholder="🔍 Search by guest name or phone…"/>
+        </div>
+        <div class="toolbar-filters">
+          <select id="filterEvent"><option value="">All Events</option></select>
+          <select id="filterCategory">
+            <option value="">All Categories</option>
+            <option>Family</option><option>Friends</option><option>Colleagues</option>
+            <option>Neighbors</option><option>VIP Guests</option><option>Relatives</option>
+            <option>Bride Side</option><option>Groom Side</option><option>Other</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Guest Table -->
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th data-sort="guest_name">Guest Name ⇅</th>
+              <th>Phone Number</th>
+              <th>Category</th>
+              <th>Event Name</th>
+              <th>Invitation Sent</th>
+              <th data-sort="rsvp_status">RSVP Status ⇅</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="guestTableBody"></tbody>
+        </table>
+        <div id="emptyState" class="empty-state" style="display:none;">No guests found. Click <strong>+ Add Guest</strong> to add one.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD / EDIT GUEST MODAL -->
+<div class="modal-overlay" id="guestModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="guestModalTitle">Add Guest</h3>
+      <button class="modal-close" onclick="closeGuestModal()">✕</button>
+    </div>
+    <div id="guestAlertBox" class="alert-msg"></div>
+    <form id="guestForm">
+      <input type="hidden" id="guest_id"/>
+      <div class="form-group">
+        <label>Guest Name <span class="req">*</span></label>
+        <input type="text" id="guest_name" required/>
+      </div>
+      <div class="form-group">
+        <label>Phone Number <span class="req">*</span></label>
+        <input type="tel" id="phone" placeholder="e.g. 98XXXXXXXX" required/>
+      </div>
+      <div class="form-group">
+        <label>Email (Optional)</label>
+        <input type="email" id="email"/>
+      </div>
+      <div class="form-group">
+        <label>Event <span class="req">*</span></label>
+        <select id="event_id" required><option value="">Select event…</option></select>
+      </div>
+      <div class="form-group">
+        <label>Category <span class="req">*</span></label>
+        <select id="category" required>
+          <option value="">Select category…</option>
+          <option>Family</option><option>Friends</option><option>Colleagues</option>
+          <option>Neighbors</option><option>VIP Guests</option><option>Relatives</option>
+          <option>Bride Side</option><option>Groom Side</option><option>Other</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn-primary" id="guestSubmitBtn">Save Guest</button>
+        <button type="button" class="btn-secondary" onclick="closeGuestModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/js/nav.js"></script>
+<script src="/js/guest-list.js"></script>
+</body>
+</html>

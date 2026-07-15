@@ -1,0 +1,96 @@
+.checklist-progress-card { margin-bottom: 20px; }
+.progress-text { font-size: 12.5px; color: #777; font-weight: 500; }
+.progress-bar-track { width: 100%; height: 10px; background: #f0e8da; border-radius: 20px; overflow: hidden; }
+.progress-bar-fill {
+  height: 100%; width: 0%; border-radius: 20px;
+  background: linear-gradient(90deg, #c0392b, #e67e22);
+  transition: width 0.35s ease;
+}
+.summary-pills { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+.summary-pill {
+  font-size: 11.5px; font-weight: 600; padding: 5px 12px; border-radius: 20px;
+  background: #fdf8f0; color: #555; border: 1px solid #f0e8da;
+}
+.summary-pill.completed { background: #eafaf1; color: #16a34a; border-color: #d3f3e2; }
+.summary-pill.pending   { background: #fef6e7; color: #d68910; border-color: #fbe8c2; }
+.summary-pill.progress  { background: #eaf2fd; color: #2563eb; border-color: #d6e7fc; }
+.summary-pill.overdue   { background: #fdecea; color: #c0392b; border-color: #f8cfca; }
+
+/* Toolbar */
+.checklist-toolbar { margin-bottom: 18px; }
+
+/* Task grid */
+.task-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+/* Task card */
+.task-card {
+  background: #fff; border-radius: 14px; padding: 16px 18px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  border-left: 4px solid #f0e8da;
+  display: flex; flex-direction: column; gap: 10px;
+  transition: box-shadow 0.2s;
+}
+.task-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+
+.task-card.priority-high   { border-left-color: #c0392b; }
+.task-card.priority-medium { border-left-color: #d68910; }
+.task-card.priority-low    { border-left-color: #16a34a; }
+.task-card.is-completed { opacity: 0.65; }
+.task-card.is-overdue { background: #fff8f7; border-left-color: #c0392b; }
+
+.task-card-top { display: flex; align-items: flex-start; gap: 10px; }
+.task-check {
+  width: 20px; height: 20px; border-radius: 6px; flex-shrink: 0; margin-top: 2px;
+  cursor: pointer; accent-color: #16a34a;
+}
+.task-title-block { flex: 1; min-width: 0; }
+.task-title {
+  font-size: 14px; font-weight: 700; color: #1a1a1a; line-height: 1.35; word-break: break-word;
+}
+.task-title.is-done { text-decoration: line-through; color: #999; }
+.task-category { font-size: 11px; color: #c0392b; font-weight: 600; margin-top: 2px; }
+
+.task-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+.badge-pill { font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 20px; white-space: nowrap; }
+.badge-pill.priority-high   { background: #fdecea; color: #c0392b; }
+.badge-pill.priority-medium { background: #fef6e7; color: #d68910; }
+.badge-pill.priority-low    { background: #eafaf1; color: #16a34a; }
+.badge-pill.status-pending     { background: #fef6e7; color: #d68910; }
+.badge-pill.status-in_progress { background: #eaf2fd; color: #2563eb; }
+.badge-pill.status-completed   { background: #eafaf1; color: #16a34a; }
+.badge-pill.custom-tag { background: #f3eafd; color: #7c3aed; }
+.badge-pill.overdue-tag { background: #c0392b; color: #fff; }
+
+.task-meta-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #777; }
+.task-due { font-weight: 600; color: #444; }
+.task-days-remaining { font-size: 11.5px; font-weight: 600; }
+.task-days-remaining.overdue { color: #c0392b; }
+.task-days-remaining.soon { color: #d68910; }
+.task-days-remaining.ok { color: #16a34a; }
+
+.task-assigned, .task-notes {
+  font-size: 12px; color: #555; line-height: 1.5; background: #fdf8f0;
+  border-radius: 8px; padding: 7px 10px;
+}
+.task-assigned strong, .task-notes strong { color: #1a1a1a; font-weight: 600; }
+
+.task-actions { display: flex; gap: 8px; margin-top: auto; padding-top: 8px; border-top: 1px solid #f5efe3; }
+.task-actions button { flex: 1; }
+.task-actions .btn-complete { background: #eafaf1; color: #16a34a; }
+.task-actions .btn-complete:hover { background: #d3f3e2; }
+
+/* Modal textarea */
+#taskModal textarea {
+  padding: 10px 12px; border: 1.5px solid #f0e8da; border-radius: 8px; font-size: 13.5px;
+  font-family: 'Inter', sans-serif; outline: none; background: #fdf8f0; color: #1a1a1a; resize: vertical;
+}
+#taskModal textarea:focus { border-color: #c0392b; }
+
+@media (max-width: 640px) {
+  .task-grid { grid-template-columns: 1fr; }
+  .checklist-toolbar { flex-direction: column; align-items: stretch; }
+  .toolbar-search { max-width: none; }
+}
