@@ -6,12 +6,13 @@ const { round2 } = require('../utils/budgetAnalysis');
 exports.getDashboardSummary = async (req, res) => {
   try {
     const userId = req.session.user.id;
+    const eventId = req.query.event_id || null;
 
     const [eventStats, guestStats, budgetTotals, categoryTotals, recentEvents] = await Promise.all([
-      Event.getStats(userId),
-      Guest.getStats(userId),
-      BudgetItem.getUserTotals(userId),
-      BudgetItem.getUserCategoryTotals(userId),
+      Event.getStats(userId, eventId),
+      Guest.getStats(userId, eventId),
+      BudgetItem.getUserTotals(userId, eventId),
+      BudgetItem.getUserCategoryTotals(userId, eventId),
       Event.findAllByUser(userId),
     ]);
 

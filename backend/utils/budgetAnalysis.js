@@ -3,10 +3,8 @@ const utilizationPercent = (actual, allocated) => {
   return round2((Number(actual) / Number(allocated)) * 100);
 };
 
-// Variance = Actual Expense − Allocated Budget 
 const variance = (actual, allocated) => round2(Number(actual) - Number(allocated));
 
-// Variance % = (Variance / Allocated Budget) * 100
 const variancePercent = (actual, allocated) => {
   if (!allocated || allocated <= 0) return 0;
   return round2((variance(actual, allocated) / Number(allocated)) * 100);
@@ -39,27 +37,22 @@ const priorityScore = (utilization, allocatedBudget, totalBudget, categoryName) 
   };
 };
 
-// Priority Score -> High / Medium / Low label (thresholds tunable)
 const priorityLabel = (score) => {
   if (score >= 15) return 'High';
   if (score >= 5) return 'Medium';
   return 'Low';
 };
-// Cost per guest = Total Estimated Expenses / Expected Guests
 const costPerGuest = (totalEstimated, guestCount) => {
   if (!guestCount || guestCount <= 0) return 0;
   return round2(Number(totalEstimated) / Number(guestCount));
 };
 
-// Budget Health Score (0-100): rewards staying within budget and penalizes overspend proportionally
 const budgetHealthScore = (totalBudget, totalPaid, totalEstimated) => {
   if (!totalBudget || totalBudget <= 0) return 0;
   const spendRatio = Number(totalPaid) / Number(totalBudget);
   const commitRatio = Number(totalEstimated) / Number(totalBudget);
   let score = 100;
-  // Penalize if committed expenses already exceed the total budget
   if (commitRatio > 1) score -= Math.min((commitRatio - 1) * 100, 60);
-  // Penalize if actual spend is racing ahead of what should have been paid at this point
   if (spendRatio > 1) score -= Math.min((spendRatio - 1) * 100, 40);
   return round2(Math.max(0, Math.min(100, score)));
 };
@@ -73,7 +66,7 @@ const buildCategoryAnalysis = (categoryTotals, allocations, totalBudget = 0) => 
   return categoryTotals.map(c => {
     const allocated = allocMap.get(c.category_id) || 0;
     const estimated = Number(c.total_estimated);
-    const actual = Number(c.total_paid); // "Actual Expense" = money actually paid so far
+    const actual = Number(c.total_paid); 
     const util = utilizationPercent(actual, allocated);
     const pScore = priorityScore(util, allocated, totalBudget, c.category_name);
     return {
@@ -101,7 +94,7 @@ const generateRecommendations = (categoryAnalysis, eventTotals, totalBudget) => 
   const recommendations = [];
 
   categoryAnalysis.forEach((cat) => {
-    if (cat.allocated_budget <= 0) return; // nothing allocated, nothing to evaluate
+    if (cat.allocated_budget <= 0) return; 
     const priorityNote = `Priority Score = Severity(${cat.severity}) × Impact(${cat.impact}) × Weight(${cat.category_weight}) = ${cat.priority_score} → ${cat.priority_label}`;
 
     if (cat.utilization_percent >= 100) {
@@ -169,36 +162,42 @@ const generateRecommendations = (categoryAnalysis, eventTotals, totalBudget) => 
 };
 
     
-
 const generateReallocationSuggestions = (categoryAnalysis) => {
   const giversPool = categoryAnalysis
     .filter(c => c.allocated_budget > 0 && c.utilization_percent < 50)
     .map(c => ({ ...c, unused: round2(c.allocated_budget - c.paid_amount) }))
-    .sort((a, b) => b.unused - a.unused);
+    .sort((a, b) => a.priority_score - b.priority_score || b.unused - a.unused);
 
   const receiversPool = categoryAnalysis
     .filter(c => c.allocated_budget > 0 && c.utilization_percent >= 100)
     .map(c => ({ ...c, overspend: round2(c.paid_amount - c.allocated_budget) }))
-    .sort((a, b) => b.overspend - a.overspend);
+    .sort((a, b) => b.priority_score - a.priority_score || b.overspend - a.overspend);
 
   const suggestions = [];
   const receivers = [...receiversPool];
 
   giversPool.forEach((giver) => {
-    if (receivers.length === 0) return;
-    const receiver = receivers[0];
-    const transferAmount = round2(Math.min(giver.unused, receiver.overspend));
-    if (transferAmount <= 0) return;
+    let remaining = giver.unused;
 
-    suggestions.push({
-      give_from: giver.category_name,
-      receive_to: receiver.category_name,
-      suggested_transfer_amount: transferAmount,
-      reason: `${giver.category_name} has Rs ${giver.unused} of unused allocated budget (only ${giver.utilization_percent}% utilized), while ${receiver.category_name} is over budget by Rs ${receiver.overspend} (${receiver.utilization_percent}% utilized). Transferring Rs ${transferAmount} balances both categories.`,
-    });
+    // Keep offering this giver's surplus to receivers, one at a time,
+    // until either the surplus runs out or every over-budget category
+    // has been covered — instead of stopping after a single match.
+    while (remaining > 0 && receivers.length > 0) {
+      const receiver = receivers[0];
+      const transferAmount = round2(Math.min(remaining, receiver.overspend));
+      if (transferAmount <= 0) break;
 
-    receiver.overspend = round2(receiver.overspend - transferAmount);
-    if (receiver.overspend <= 0) receivers.shift();
+      suggestions.push({
+        give_from: giver.category_name,
+        receive_to: receiver.category_name,
+        suggested_transfer_amount: transferAmount,
+        reason: `${giver.category_name} has Rs ${giver.unused} of unused allocated budget (only ${giver.utilization_percent}% utilized), while ${receiver.category_name} is over budget by Rs ${receiver.overspend} (${receiver.utilization_percent}% utilized). Transferring Rs ${transferAmount} balances both categories.`,
+      });
+
+      remaining = round2(remaining - transferAmount);
+      receiver.overspend = round2(receiver.overspend - transferAmount);
+      if (receiver.overspend <= 0) receivers.shift();
+    }
   });
 
   return suggestions;

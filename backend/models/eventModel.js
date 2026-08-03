@@ -18,7 +18,6 @@ const Event = {
     return result.insertId;
   },
 
-
   findAllByUser: async (userId) => {
     const [rows] = await db.query(
       `SELECT * FROM events WHERE user_id = ? ORDER BY event_date ASC, id DESC`,
@@ -26,7 +25,6 @@ const Event = {
     );
     return rows;
   },
-
 
   findByIdAndUser: async (id, userId) => {
     const [rows] = await db.query(
@@ -36,7 +34,48 @@ const Event = {
     return rows[0];
   },
 
- 
+  getRole: async (id, userId) => {
+    const [rows] = await db.query(`SELECT user_id FROM events WHERE id = ?`, [id]);
+    if (!rows[0]) return null;
+    if (rows[0].user_id === userId) return 'owner';
+    const [collab] = await db.query(
+      `SELECT role FROM event_collaborators WHERE event_id = ? AND user_id = ? AND status = 'accepted'`,
+      [id, userId]
+    );
+    return collab[0] ? collab[0].role : null;
+  },
+
+  
+  findByIdForMember: async (id, userId) => {
+    const [rows] = await db.query(
+      `SELECT e.*,
+              CASE WHEN e.user_id = ? THEN 'owner' ELSE ec.role END AS my_role,
+              (e.user_id = ?) AS is_owner
+       FROM events e
+       LEFT JOIN event_collaborators ec
+         ON ec.event_id = e.id AND ec.user_id = ? AND ec.status = 'accepted'
+       WHERE e.id = ? AND (e.user_id = ? OR ec.id IS NOT NULL)`,
+      [userId, userId, userId, id, userId]
+    );
+    return rows[0];
+  },
+
+
+  findAllForUser: async (userId) => {
+    const [rows] = await db.query(
+      `SELECT e.*,
+              CASE WHEN e.user_id = ? THEN 'owner' ELSE ec.role END AS my_role,
+              (e.user_id = ?) AS is_owner
+       FROM events e
+       LEFT JOIN event_collaborators ec
+         ON ec.event_id = e.id AND ec.user_id = ? AND ec.status = 'accepted'
+       WHERE e.user_id = ? OR ec.id IS NOT NULL
+       ORDER BY e.event_date ASC, e.id DESC`,
+      [userId, userId, userId, userId]
+    );
+    return rows;
+  },
+
   update: async (id, userId, data) => {
     const {
       event_name, category, event_date, event_time,
@@ -71,21 +110,31 @@ const Event = {
     return result.affectedRows;
   },
 
-
   search: async (userId, term) => {
     const like = `%${term}%`;
     const [rows] = await db.query(
-      `SELECT * FROM events
-       WHERE user_id = ?
-         AND (event_name LIKE ? OR category LIKE ? OR location LIKE ?)
-       ORDER BY event_date ASC`,
-      [userId, like, like, like]
+      `SELECT e.*,
+              CASE WHEN e.user_id = ? THEN 'owner' ELSE ec.role END AS my_role,
+              (e.user_id = ?) AS is_owner
+       FROM events e
+       LEFT JOIN event_collaborators ec
+         ON ec.event_id = e.id AND ec.user_id = ? AND ec.status = 'accepted'
+       WHERE (e.user_id = ? OR ec.id IS NOT NULL)
+         AND (e.event_name LIKE ? OR e.category LIKE ? OR e.location LIKE ?)
+       ORDER BY e.event_date ASC`,
+      [userId, userId, userId, userId, like, like, like]
     );
     return rows;
   },
 
   
-  getStats: async (userId) => {
+  getStats: async (userId, eventId = null) => {
+    const params = [userId];
+    let where = 'WHERE user_id = ?';
+    if (eventId) {
+      where += ' AND id = ?';
+      params.push(eventId);
+    }
     const [rows] = await db.query(
       `SELECT
          COUNT(*)                                                AS total_events,
@@ -95,8 +144,8 @@ const Event = {
          SUM(CASE WHEN status = 'Cancelled'   THEN 1 ELSE 0 END)  AS cancelled_events,
          COALESCE(SUM(estimated_budget), 0)                      AS total_budget,
          COALESCE(SUM(expected_guests), 0)                       AS total_expected_guests
-       FROM events WHERE user_id = ?`,
-      [userId]
+       FROM events ${where}`,
+      params
     );
     return rows[0];
   },

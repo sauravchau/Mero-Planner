@@ -1,5 +1,4 @@
 const db = require('../config/db');
-const ChecklistTemplate = require('./checklistTemplateModel');
 
 const VALID_STATUSES = ['pending', 'in_progress', 'completed'];
 const VALID_PRIORITIES = ['low', 'medium', 'high'];
@@ -8,11 +7,6 @@ function toDateOnly(value) {
   if (!value) return null;
   if (value instanceof Date) return value.toISOString().slice(0, 10);
   return String(value).slice(0, 10);
-}
-function calculateDueDate(eventDate, daysBeforeEvent) {
-  const base = new Date(`${toDateOnly(eventDate)}T00:00:00Z`);
-  base.setUTCDate(base.getUTCDate() - Number(daysBeforeEvent));
-  return base.toISOString().slice(0, 10);
 }
 
 function daysRemaining(dueDate) {
@@ -34,51 +28,8 @@ function enrich(item) {
 }
 
 const ChecklistItem = {
-
-  calculateDueDate,
   daysRemaining,
 
-  generateForEvent: async (eventId, eventDate) => {
-    const templates = await ChecklistTemplate.getAll();
-    if (!templates.length) return 0;
-
-    await db.query(
-      `DELETE FROM checklist_items WHERE event_id = ? AND is_custom = FALSE`,
-      [eventId]
-    );
-
-    const values = templates.map(t => ([
-      eventId,
-      t.task_title,
-      t.category,
-      t.days_before_event,
-      calculateDueDate(eventDate, t.days_before_event),
-      'pending',
-      t.priority,
-      null, 
-      null, 
-      false, 
-    ]));
-
-    const [result] = await db.query(
-      `INSERT INTO checklist_items
-        (event_id, task_title, category, days_before_event, due_date,
-         status, priority, assigned_to, notes, is_custom)
-       VALUES ?`,
-      [values]
-    );
-    return result.affectedRows;
-  },
-
-  recalculateDueDates: async (eventId, newEventDate) => {
-    const [result] = await db.query(
-      `UPDATE checklist_items
-       SET due_date = DATE_SUB(?, INTERVAL days_before_event DAY)
-       WHERE event_id = ? AND is_custom = FALSE AND days_before_event IS NOT NULL`,
-      [toDateOnly(newEventDate), eventId]
-    );
-    return result.affectedRows;
-  },
 
   findByEvent: async (eventId, filters = {}) => {
     const { category, status, search, sortBy } = filters;
@@ -116,8 +67,10 @@ const ChecklistItem = {
     const [rows] = await db.query(
       `SELECT ci.* FROM checklist_items ci
        JOIN events e ON ci.event_id = e.id
-       WHERE ci.id = ? AND e.user_id = ?`,
-      [id, userId]
+       WHERE ci.id = ? AND (e.user_id = ? OR e.id IN (
+         SELECT event_id FROM event_collaborators WHERE user_id = ? AND status = 'accepted'
+       ))`,
+      [id, userId, userId]
     );
     return rows[0] ? enrich(rows[0]) : null;
   },

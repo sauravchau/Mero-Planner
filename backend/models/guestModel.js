@@ -12,14 +12,15 @@ const Guest = {
     return result.insertId;
   },
 
-
   findAllByUser: async (userId, filters = {}) => {
     let sql = `
       SELECT g.*, e.event_name
       FROM guests g
       JOIN events e ON g.event_id = e.id
-      WHERE e.user_id = ?`;
-    const params = [userId];
+      WHERE (e.user_id = ? OR e.id IN (
+        SELECT event_id FROM event_collaborators WHERE user_id = ? AND status = 'accepted'
+      ))`;
+    const params = [userId, userId];
 
     if (filters.event_id) {
       sql += ` AND g.event_id = ?`;
@@ -47,16 +48,20 @@ const Guest = {
     const [rows] = await db.query(
       `SELECT g.*, e.event_name FROM guests g
        JOIN events e ON g.event_id = e.id
-       WHERE g.id = ? AND e.user_id = ?`,
-      [id, userId]
+       WHERE g.id = ? AND (e.user_id = ? OR e.id IN (
+         SELECT event_id FROM event_collaborators WHERE user_id = ? AND status = 'accepted'
+       ))`,
+      [id, userId, userId]
     );
     return rows[0];
   },
-
+  
   eventBelongsToUser: async (eventId, userId) => {
     const [rows] = await db.query(
-      `SELECT id FROM events WHERE id = ? AND user_id = ?`,
-      [eventId, userId]
+      `SELECT id FROM events WHERE id = ? AND (user_id = ? OR id IN (
+         SELECT event_id FROM event_collaborators WHERE user_id = ? AND status = 'accepted'
+       ))`,
+      [eventId, userId, userId]
     );
     return rows.length > 0;
   },
@@ -67,8 +72,10 @@ const Guest = {
       `UPDATE guests g
        JOIN events e ON g.event_id = e.id
        SET g.guest_name = ?, g.phone = ?, g.email = ?, g.category = ?, g.event_id = ?
-       WHERE g.id = ? AND e.user_id = ?`,
-      [guest_name, phone, email || null, category, event_id, id, userId]
+       WHERE g.id = ? AND (e.user_id = ? OR e.id IN (
+         SELECT event_id FROM event_collaborators WHERE user_id = ? AND status = 'accepted'
+       ))`,
+      [guest_name, phone, email || null, category, event_id, id, userId, userId]
     );
     return result.affectedRows;
   },
@@ -77,8 +84,10 @@ const Guest = {
     const [result] = await db.query(
       `DELETE g FROM guests g
        JOIN events e ON g.event_id = e.id
-       WHERE g.id = ? AND e.user_id = ?`,
-      [id, userId]
+       WHERE g.id = ? AND (e.user_id = ? OR e.id IN (
+         SELECT event_id FROM event_collaborators WHERE user_id = ? AND status = 'accepted'
+       ))`,
+      [id, userId, userId]
     );
     return result.affectedRows;
   },
@@ -88,8 +97,10 @@ const Guest = {
       `UPDATE guests g
        JOIN events e ON g.event_id = e.id
        SET g.invitation_sent = ?
-       WHERE g.id = ? AND e.user_id = ?`,
-      [sent ? 1 : 0, id, userId]
+       WHERE g.id = ? AND (e.user_id = ? OR e.id IN (
+         SELECT event_id FROM event_collaborators WHERE user_id = ? AND status = 'accepted'
+       ))`,
+      [sent ? 1 : 0, id, userId, userId]
     );
     return result.affectedRows;
   },
@@ -99,8 +110,10 @@ const Guest = {
       `UPDATE guests g
        JOIN events e ON g.event_id = e.id
        SET g.rsvp_status = ?
-       WHERE g.id = ? AND e.user_id = ?`,
-      [status, id, userId]
+       WHERE g.id = ? AND (e.user_id = ? OR e.id IN (
+         SELECT event_id FROM event_collaborators WHERE user_id = ? AND status = 'accepted'
+       ))`,
+      [status, id, userId, userId]
     );
     return result.affectedRows;
   },
@@ -109,9 +122,11 @@ const Guest = {
     const [rows] = await db.query(
       `SELECT g.* FROM guests g
        JOIN events e ON g.event_id = e.id
-       WHERE g.event_id = ? AND e.user_id = ?
+       WHERE g.event_id = ? AND (e.user_id = ? OR e.id IN (
+         SELECT event_id FROM event_collaborators WHERE user_id = ? AND status = 'accepted'
+       ))
        ORDER BY g.guest_name ASC`,
-      [eventId, userId]
+      [eventId, userId, userId]
     );
     return rows;
   },
@@ -124,7 +139,15 @@ const Guest = {
     return rows[0].guest_count;
   },
 
-  getStats: async (userId) => {
+  getStats: async (userId, eventId = null) => {
+    const params = [userId, userId];
+    let where = `WHERE (e.user_id = ? OR e.id IN (
+         SELECT event_id FROM event_collaborators WHERE user_id = ? AND status = 'accepted'
+       ))`;
+    if (eventId) {
+      where += ' AND e.id = ?';
+      params.push(eventId);
+    }
     const [rows] = await db.query(
       `SELECT
          COUNT(*)                                                        AS total_guests,
@@ -133,8 +156,8 @@ const Guest = {
          SUM(CASE WHEN g.invitation_sent = 0 THEN 1 ELSE 0 END)         AS pending_invitations
        FROM guests g
        JOIN events e ON g.event_id = e.id
-       WHERE e.user_id = ?`,
-      [userId]
+       ${where}`,
+      params
     );
     return rows[0];
   },

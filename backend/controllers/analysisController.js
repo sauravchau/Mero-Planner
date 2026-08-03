@@ -10,7 +10,6 @@ const {
   costPerGuest,
   round2,
 } = require('../utils/budgetAnalysis');
-
 exports.getEventBudgetSummary = async (req, res) => {
   try {
     const userId = req.session.user.id;
@@ -37,7 +36,6 @@ exports.getEventBudgetSummary = async (req, res) => {
   }
 };
 
-
 exports.getCategorySummary = async (req, res) => {
   try {
     const userId = req.session.user.id;
@@ -48,7 +46,6 @@ exports.getCategorySummary = async (req, res) => {
     const categoryTotals = await BudgetItem.getCategoryTotals(event.id);
     const allocations = await BudgetAllocation.findByEvent(event.id);
     const analysis = mergeCategoryAnalysis(categoryTotals, allocations, totalBudget);
-
     const covered = new Set(analysis.map(a => a.category_id));
     allocations.forEach(a => {
       if (!covered.has(a.category_id)) {
@@ -73,7 +70,6 @@ exports.getCategorySummary = async (req, res) => {
     res.status(500).json({ message: 'Server error while building the category summary.' });
   }
 };
-
 
 exports.getBudgetAnalysis = async (req, res) => {
   try {
@@ -103,7 +99,6 @@ exports.getBudgetAnalysis = async (req, res) => {
     res.status(500).json({ message: 'Server error while running budget analysis.' });
   }
 };
-
 
 exports.getRecommendations = async (req, res) => {
   try {

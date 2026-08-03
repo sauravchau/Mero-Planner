@@ -1,5 +1,6 @@
 const path = require('path');
 const Guest = require('../models/guestModel');
+const Event = require('../models/eventModel');
 const { isValidPhone } = require('../utils/validators');
 
 const VIEWS_DIR = path.join(__dirname, '..', '..', 'frontend', 'views');
@@ -9,6 +10,20 @@ const VALID_CATEGORIES = [
   'Relatives', 'Bride Side', 'Groom Side', 'Other',
 ];
 const VALID_RSVP = ['Pending', 'Confirmed', 'Declined'];
+
+
+async function assertCanEdit(eventId, userId, res) {
+  const role = await Event.getRole(eventId, userId);
+  if (!role) {
+    res.status(404).json({ message: 'Event not found.' });
+    return false;
+  }
+  if (role === 'viewer') {
+    res.status(403).json({ message: 'You have view-only access to this event.' });
+    return false;
+  }
+  return true;
+}
 
 exports.showGuestListPage = (req, res) => {
   res.sendFile(path.join(VIEWS_DIR, 'guest-list.html'));
@@ -27,7 +42,6 @@ function validateGuestPayload(body) {
   return errors;
 }
 
-//Create
 exports.createGuest = async (req, res) => {
   try {
     const userId = req.session.user.id;
@@ -36,6 +50,7 @@ exports.createGuest = async (req, res) => {
 
     const ownsEvent = await Guest.eventBelongsToUser(req.body.event_id, userId);
     if (!ownsEvent) return res.status(400).json({ message: 'Invalid Event selected.' });
+    if (!(await assertCanEdit(req.body.event_id, userId, res))) return;
 
     const insertId = await Guest.create(req.body);
     const guest = await Guest.findByIdAndUser(insertId, userId);
@@ -70,12 +85,12 @@ exports.getGuestById = async (req, res) => {
   }
 };
 
-//  Update
 exports.updateGuest = async (req, res) => {
   try {
     const userId = req.session.user.id;
     const existing = await Guest.findByIdAndUser(req.params.id, userId);
     if (!existing) return res.status(404).json({ message: 'Guest not found.' });
+    if (!(await assertCanEdit(existing.event_id, userId, res))) return;
 
     const errors = validateGuestPayload(req.body);
     if (errors.length) return res.status(400).json({ message: errors[0], errors });
@@ -92,10 +107,13 @@ exports.updateGuest = async (req, res) => {
   }
 };
 
-//Delete
 exports.deleteGuest = async (req, res) => {
   try {
     const userId = req.session.user.id;
+    const existing = await Guest.findByIdAndUser(req.params.id, userId);
+    if (!existing) return res.status(404).json({ message: 'Guest not found.' });
+    if (!(await assertCanEdit(existing.event_id, userId, res))) return;
+
     const affected = await Guest.remove(req.params.id, userId);
     if (!affected) return res.status(404).json({ message: 'Guest not found.' });
     res.json({ message: 'Guest deleted successfully.' });
@@ -105,11 +123,14 @@ exports.deleteGuest = async (req, res) => {
   }
 };
 
-//PATCH invitation sent
 exports.setInvitation = async (req, res) => {
   try {
     const userId = req.session.user.id;
     const { sent } = req.body;
+    const existing = await Guest.findByIdAndUser(req.params.id, userId);
+    if (!existing) return res.status(404).json({ message: 'Guest not found.' });
+    if (!(await assertCanEdit(existing.event_id, userId, res))) return;
+
     const affected = await Guest.setInvitation(req.params.id, userId, !!sent);
     if (!affected) return res.status(404).json({ message: 'Guest not found.' });
     const guest = await Guest.findByIdAndUser(req.params.id, userId);
@@ -120,12 +141,15 @@ exports.setInvitation = async (req, res) => {
   }
 };
 
-//PATCH RSVP status
 exports.setRsvp = async (req, res) => {
   try {
     const userId = req.session.user.id;
     const { status } = req.body;
     if (!VALID_RSVP.includes(status)) return res.status(400).json({ message: 'Invalid RSVP status.' });
+
+    const existing = await Guest.findByIdAndUser(req.params.id, userId);
+    if (!existing) return res.status(404).json({ message: 'Guest not found.' });
+    if (!(await assertCanEdit(existing.event_id, userId, res))) return;
 
     const affected = await Guest.setRsvp(req.params.id, userId, status);
     if (!affected) return res.status(404).json({ message: 'Guest not found.' });
@@ -137,7 +161,6 @@ exports.setRsvp = async (req, res) => {
   }
 };
 
-//Dashboard guest summary stats
 exports.getGuestStats = async (req, res) => {
   try {
     const userId = req.session.user.id;

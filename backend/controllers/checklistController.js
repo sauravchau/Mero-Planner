@@ -6,32 +6,23 @@ const Event = require('../models/eventModel');
 const VIEWS_DIR = path.join(__dirname, '..', '..', 'frontend', 'views');
 const VALID_STATUSES = ['pending', 'in_progress', 'completed'];
 const VALID_PRIORITIES = ['low', 'medium', 'high'];
+ 
+async function assertCanEdit(eventId, userId, res) {
+  const role = await Event.getRole(eventId, userId);
+  if (!role) {
+    res.status(404).json({ message: 'Event not found.' });
+    return false;
+  }
+  if (role === 'viewer') {
+    res.status(403).json({ message: 'You have view-only access to this event.' });
+    return false;
+  }
+  return true;
+}
+
 
 exports.showChecklistPage = (req, res) => {
   res.sendFile(path.join(VIEWS_DIR, 'checklist.html'));
-};
-
-exports.generateChecklist = async (req, res) => {
-  try {
-    const userId = req.session.user.id;
-    const { eventId } = req.params;
-
-    const event = await Event.findByIdAndUser(eventId, userId);
-    if (!event) return res.status(404).json({ message: 'Event not found.' });
-
-    const inserted = await ChecklistItem.generateForEvent(eventId, event.event_date);
-    const items = await ChecklistItem.findByEvent(eventId, {});
-    const summary = await ChecklistItem.getSummary(eventId);
-
-    res.status(201).json({
-      message: `Checklist generated (${inserted} tasks).`,
-      items,
-      summary,
-    });
-  } catch (err) {
-    console.error('generateChecklist error:', err);
-    res.status(500).json({ message: 'Server error while generating checklist.' });
-  }
 };
 
 exports.getChecklist = async (req, res) => {
@@ -40,11 +31,11 @@ exports.getChecklist = async (req, res) => {
     const { eventId } = req.params;
     const { category, status, search, sortBy } = req.query;
 
-    const event = await Event.findByIdAndUser(eventId, userId);
+    const event = await Event.findByIdForMember(eventId, userId);
     if (!event) return res.status(404).json({ message: 'Event not found.' });
 
     const items = await ChecklistItem.findByEvent(eventId, { category, status, search, sortBy });
-    const summary = await ChecklistItem.getSummary(eventId); // always reflects the FULL list, not the filtered view
+    const summary = await ChecklistItem.getSummary(eventId);
     const categories = await ChecklistTemplate.getCategories();
 
     res.json({ items, summary, categories, event });
@@ -61,8 +52,9 @@ exports.addCustomTask = async (req, res) => {
 
     if (!event_id) return res.status(400).json({ message: 'event_id is required.' });
 
-    const event = await Event.findByIdAndUser(event_id, userId);
+    const event = await Event.findByIdForMember(event_id, userId);
     if (!event) return res.status(404).json({ message: 'Event not found.' });
+    if (!(await assertCanEdit(event_id, userId, res))) return;
 
     if (!task_title || !task_title.trim()) return res.status(400).json({ message: 'Task title is required.' });
     if (!category || !category.trim()) return res.status(400).json({ message: 'Category is required.' });
@@ -90,6 +82,7 @@ exports.updateChecklistItem = async (req, res) => {
 
     const existing = await ChecklistItem.findByIdForUser(id, userId);
     if (!existing) return res.status(404).json({ message: 'Task not found.' });
+    if (!(await assertCanEdit(existing.event_id, userId, res))) return;
 
     const { task_title, category, priority, status } = req.body;
     if (task_title !== undefined && !task_title.trim()) {
@@ -129,6 +122,7 @@ exports.updateTaskStatus = async (req, res) => {
 
     const existing = await ChecklistItem.findByIdForUser(id, userId);
     if (!existing) return res.status(404).json({ message: 'Task not found.' });
+    if (!(await assertCanEdit(existing.event_id, userId, res))) return;
 
     await ChecklistItem.updateStatus(id, status);
     const updated = await ChecklistItem.findByIdForUser(id, userId);
@@ -147,6 +141,7 @@ exports.deleteTask = async (req, res) => {
 
     const existing = await ChecklistItem.findByIdForUser(id, userId);
     if (!existing) return res.status(404).json({ message: 'Task not found.' });
+    if (!(await assertCanEdit(existing.event_id, userId, res))) return;
 
     const affected = await ChecklistItem.deleteCustomItem(id);
     if (!affected) return res.status(404).json({ message: 'Task not found.' });

@@ -8,6 +8,19 @@ const { round2 } = require('../utils/budgetAnalysis');
 
 const VIEWS_DIR = path.join(__dirname, '..', '..', 'frontend', 'views');
 
+async function assertCanEdit(eventId, userId, res) {
+  const role = await Event.getRole(eventId, userId);
+  if (!role) {
+    res.status(404).json({ message: 'Event not found.' });
+    return false;
+  }
+  if (role === 'viewer') {
+    res.status(403).json({ message: 'You have view-only access to this event.' });
+    return false;
+  }
+  return true;
+}
+
 exports.showBudgetPage = (req, res) => {
   res.sendFile(path.join(VIEWS_DIR, 'budget.html'));
 };
@@ -31,8 +44,9 @@ exports.allocateBudget = async (req, res) => {
     if (!['percentage', 'fixed'].includes(allocation_type)) return res.status(400).json({ message: 'Allocation type must be percentage or fixed.' });
     if (!isNonNegativeNumber(value)) return res.status(400).json({ message: 'Allocation value cannot be negative.' });
 
-    const event = await Event.findByIdAndUser(event_id, userId);
+    const event = await Event.findByIdForMember(event_id, userId);
     if (!event) return res.status(404).json({ message: 'Event not found.' });
+    if (!(await assertCanEdit(event_id, userId, res))) return;
 
     const totalBudget = Number(event.estimated_budget);
     let percentage, allocatedAmount;
@@ -65,7 +79,7 @@ exports.allocateBudget = async (req, res) => {
 exports.getAllocations = async (req, res) => {
   try {
     const userId = req.session.user.id;
-    const event = await Event.findByIdAndUser(req.params.eventId, userId);
+    const event = await Event.findByIdForMember(req.params.eventId, userId);
     if (!event) return res.status(404).json({ message: 'Event not found.' });
     const allocations = await BudgetAllocation.findByEvent(req.params.eventId);
     res.json({ allocations, total_budget: Number(event.estimated_budget) });
@@ -93,6 +107,7 @@ exports.createBudgetItem = async (req, res) => {
 
     const owns = await BudgetItem.eventBelongsToUser(req.body.event_id, userId);
     if (!owns) return res.status(400).json({ message: 'Invalid Event selected.' });
+    if (!(await assertCanEdit(req.body.event_id, userId, res))) return;
 
     const insertId = await BudgetItem.create(req.body);
     const item = await BudgetItem.findByIdAndUser(insertId, userId);
@@ -136,6 +151,7 @@ exports.updateBudgetItem = async (req, res) => {
     const userId = req.session.user.id;
     const existing = await BudgetItem.findByIdAndUser(req.params.id, userId);
     if (!existing) return res.status(404).json({ message: 'Expense not found.' });
+    if (!(await assertCanEdit(existing.event_id, userId, res))) return;
 
     const errors = validateItemPayload({ ...req.body, event_id: existing.event_id });
     if (errors.length) return res.status(400).json({ message: errors[0], errors });
@@ -154,6 +170,7 @@ exports.deleteBudgetItem = async (req, res) => {
     const userId = req.session.user.id;
     const existing = await BudgetItem.findByIdAndUser(req.params.id, userId);
     if (!existing) return res.status(404).json({ message: 'Expense not found.' });
+    if (!(await assertCanEdit(existing.event_id, userId, res))) return;
 
     await BudgetItem.remove(req.params.id); // payments cascade via FK
     res.json({ message: 'Expense deleted successfully.' });
@@ -162,3 +179,5 @@ exports.deleteBudgetItem = async (req, res) => {
     res.status(500).json({ message: 'Server error while deleting the expense.' });
   }
 };
+  
+

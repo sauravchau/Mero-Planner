@@ -1,7 +1,6 @@
 const path = require('path');
 const Event = require('../models/eventModel');
 const Guest = require('../models/guestModel');
-const ChecklistItem = require('../models/checklistItemModel');
 const { isNotPastDate, isPositiveNumber, isNonNegativeNumber } = require('../utils/validators');
 
 const VIEWS_DIR = path.join(__dirname, '..', '..', 'frontend', 'views');
@@ -65,12 +64,7 @@ exports.createEvent = async (req, res) => {
     const userId = req.session.user.id;
     const insertId = await Event.create(userId, req.body);
     const event = await Event.findByIdAndUser(insertId, userId);
-    try {
-     
-      await ChecklistItem.generateForEvent(insertId, event.event_date);
-    } catch (checklistErr) {
-      console.error('Checklist seeding failed for event', insertId, checklistErr);
-    }
+
     res.status(201).json({ message: 'Event created successfully.', event });
   } catch (err) {
     console.error('createEvent error:', err);
@@ -78,14 +72,13 @@ exports.createEvent = async (req, res) => {
   }
 };
 
-
 exports.getEvents = async (req, res) => {
   try {
     const userId = req.session.user.id;
     const { search } = req.query;
     const events = search && search.trim()
       ? await Event.search(userId, search.trim())
-      : await Event.findAllByUser(userId);
+      : await Event.findAllForUser(userId);
 
     const withGuestCounts = await Promise.all(events.map(async (ev) => {
       const guest_count = await Guest.countByEvent(ev.id);
@@ -102,7 +95,7 @@ exports.getEvents = async (req, res) => {
 exports.getEventById = async (req, res) => {
   try {
     const userId = req.session.user.id;
-    const event = await Event.findByIdAndUser(req.params.id, userId);
+    const event = await Event.findByIdForMember(req.params.id, userId);
     if (!event) return res.status(404).json({ message: 'Event not found.' });
     const guest_count = await Guest.countByEvent(event.id);
     res.json({ event: { ...event, guest_count } });
@@ -127,20 +120,6 @@ exports.updateEvent = async (req, res) => {
 
     await Event.update(req.params.id, userId, req.body);
     const updated = await Event.findByIdAndUser(req.params.id, userId);
-    try {
-      const oldDate = existing.event_date instanceof Date
-        ? existing.event_date.toISOString().slice(0, 10)
-        : String(existing.event_date).slice(0, 10);
-      const newDate = updated.event_date instanceof Date
-        ? updated.event_date.toISOString().slice(0, 10)
-        : String(updated.event_date).slice(0, 10);
-
-      if (oldDate !== newDate) {
-        await ChecklistItem.recalculateDueDates(req.params.id, updated.event_date);
-      }
-    } catch (recalcErr) {
-      console.error('Checklist due-date recalculation failed for event', req.params.id, recalcErr);
-    }
 
     res.json({ message: 'Event updated successfully.', event: updated });
   } catch (err) {
