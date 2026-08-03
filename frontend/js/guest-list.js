@@ -38,7 +38,6 @@ async function loadEventsDropdown() {
   }
 }
 
-// ---- Load summary stats ----
 async function loadStats() {
   try {
     const res = await fetch('/api/guests/stats');
@@ -53,7 +52,6 @@ async function loadStats() {
   }
 }
 
-// ---- Load & render guest table ----
 let allGuests = [];
 
 async function loadGuests() {
@@ -163,7 +161,6 @@ async function deleteGuest(id) {
   }
 }
 
-// ---- Add / Edit modal ----
 const guestModal = document.getElementById('guestModal');
 const guestForm = document.getElementById('guestForm');
 const guestAlertBox = document.getElementById('guestAlertBox');
@@ -236,7 +233,7 @@ guestForm.addEventListener('submit', async (e) => {
   }
 });
 
-// ---- Sorting ----
+
 document.querySelectorAll('[data-sort]').forEach(th => {
   th.addEventListener('click', () => {
     const col = th.getAttribute('data-sort');
@@ -250,7 +247,6 @@ document.querySelectorAll('[data-sort]').forEach(th => {
   });
 });
 
-// ---- Search / filters (debounced) ----
 let searchTimer;
 searchName.addEventListener('input', () => {
   clearTimeout(searchTimer);
@@ -259,7 +255,6 @@ searchName.addEventListener('input', () => {
 filterEvent.addEventListener('change', loadGuests);
 filterCategory.addEventListener('change', loadGuests);
 
-// ---- Init ----
 (async function init() {
   await loadEventsDropdown();
   await loadGuests();

@@ -18,7 +18,6 @@ body {
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
 }
 
-/* LEFT — dark maroon panel, matches appendix */
 .left {
   width: 320px;
   flex-shrink: 0;
@@ -66,7 +65,6 @@ body {
 .fi-green { background: rgba(39,174,96,0.25); }
 .fi-gold  { background: rgba(243,156,18,0.25); }
 
-/* RIGHT — cream/white panel, matches appendix */
 .right {
   flex: 1;
   background: #fffaf3;
@@ -79,7 +77,6 @@ body {
 .right h2 { font-size: 26px; font-weight: 700; color: #1a1a1a; }
 .right .subtitle { font-size: 13.5px; color: #8a8a8a; margin-top: 4px; }
 
-/* Role tabs — Event Organizer / Vendor / Admin */
 .role-tabs {
   display: flex; background: #f0ece4; border-radius: 8px;
   padding: 3px; margin: 22px 0 16px;
@@ -92,12 +89,9 @@ body {
 }
 .role-tab.active { background: #fff; color: #1a1a1a; box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
 
-/* Alert */
 .alert { padding: 10px 14px; border-radius: 8px; font-size: 13.5px; margin-bottom: 14px; display: none; }
 .alert.error   { background: #fff0f0; color: #c0392b; border: 1px solid #f5c6c6; display: block; }
 .alert.success { background: #f0fff4; color: #1e8449; border: 1px solid #b7dfc4; display: block; }
-
-/* Form */
 .form-body { display: flex; flex-direction: column; }
 
 .field-label {
@@ -122,7 +116,6 @@ body {
 .forgot { font-size: 13px; color: #c0392b; text-decoration: none; font-weight: 500; }
 .forgot:hover { text-decoration: underline; }
 
-/* Buttons */
 .btn-login {
   width: 100%; padding: 12px; background: #c0392b; color: #fff;
   border: none; border-radius: 8px; font-size: 14.5px; font-weight: 600;
@@ -153,7 +146,6 @@ body {
 .signup-link a { color: #c0392b; font-weight: 500; text-decoration: none; }
 .signup-link a:hover { text-decoration: underline; }
 
-/* Toast */
 #toast {
   position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
   background: #222; color: #fff; padding: 10px 22px; border-radius: 8px;

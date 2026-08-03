@@ -12,7 +12,6 @@
 
 <div class="app-layout">
 
-  
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
       <div class="sidebar-logo">🗓️</div>
@@ -32,38 +31,28 @@
       <a href="/budget.html" class="nav-item">💰 Budget</a>
       <a href="/vendors.html" class="nav-item">🏪 Vendors</a>
       <a href="/checklist.html" class="nav-item">✅ Checklists</a>
-      <a href="#" class="nav-item">🤝 Collaborate</a>
-
-      <p class="nav-section-label">Insights</p>
-      <a href="#" class="nav-item">📈 Analytics</a>
-      <a href="#" class="nav-item">🔔 Notifications</a>
-      <a href="#" class="nav-item">⚙️ Settings</a>
+     
 
       <a href="/logout" class="nav-item logout">🚪 Logout</a>
     </nav>
   </aside>
 
-  
+
   <div class="main-content">
 
-    
     <header class="topbar">
       <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
       <h2 class="page-title">Dashboard</h2>
-      <div class="topbar-search">
-        <input type="text" id="dashboardSearch" placeholder="🔍 Search events…"/>
-      </div>
+
       <div class="topbar-right">
         <button class="btn-new-event" onclick="window.location.href='/create-event.html'">+ New Event</button>
       </div>
     </header>
 
-    
     <div class="content-area">
 
       <div id="alertBox" class="alert-msg"></div>
 
-      
       <div class="welcome-card">
         <div class="welcome-text">
           <h3>Namaste, <span id="welcomeName">User</span> 🙏</h3>
@@ -76,7 +65,6 @@
         </div>
       </div>
 
-      
       <div class="stats-row">
         <div class="stat-card">
           <div class="stat-icon red">🔥</div>
@@ -100,10 +88,8 @@
         </div>
       </div>
 
-      
       <div class="mid-row">
 
-        
         <div class="card events-card">
           <div class="card-header"><h4>My Events</h4><a href="/my-events.html" class="view-all">View all →</a></div>
           <div id="eventsPreview"></div>
@@ -112,7 +98,7 @@
           </div>
         </div>
 
-        
+        <!-- Budget Overview -->
         <div class="card budget-card">
           <div class="card-header"><h4>Budget Overview</h4><a href="/budget.html" class="view-all">Details →</a></div>
           <div class="budget-total" id="budgetTotalText">Rs 0<span>spent of Rs 0 total</span></div>
@@ -125,7 +111,6 @@
 
       </div>
 
-      
       <div class="bottom-row">
 
         <div class="card schedule-card">

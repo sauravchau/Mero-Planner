@@ -30,13 +30,16 @@ function renderEvents(events) {
 
   events.forEach((ev) => {
     const statusClass = STATUS_CLASS[ev.status] || 'upcoming';
+    const isOwner = ev.is_owner === undefined ? true : !!Number(ev.is_owner);
+    const myRole = ev.my_role || 'owner';
+    const canEdit = isOwner || myRole === 'editor';
 
     const card = document.createElement('div');
     card.className = 'entity-card';
     card.innerHTML = `
       <div class="ec-top">
         <div>
-          <div class="ec-title">${escapeHtml(ev.event_name)}</div>
+          <div class="ec-title">${escapeHtml(ev.event_name)}${!isOwner ? `<span class="ec-shared-badge">Shared · ${escapeHtml(myRole)}</span>` : ''}</div>
           <div class="ec-cat">${escapeHtml(ev.category)}</div>
         </div>
         <span class="status-tag ${statusClass}">${ev.status}</span>
@@ -49,8 +52,11 @@ function renderEvents(events) {
       ${ev.description ? `<div class="ec-desc">${escapeHtml(ev.description)}</div>` : ''}
       <div class="ec-actions">
         <button class="btn-icon-sm" onclick="viewEvent(${ev.id})">👁 View</button>
-        <button class="btn-icon-sm" onclick="openEditModal(${ev.id})">✏️ Edit</button>
-        <button class="btn-danger" onclick="deleteEvent(${ev.id})">🗑 Delete</button>
+        ${canEdit ? `<button class="btn-icon-sm" onclick="openCollabModal(${ev.id})">🤝 Collaborate</button>` : ''}
+        ${isOwner ? `<button class="btn-icon-sm" onclick="openEditModal(${ev.id})">✏️ Edit</button>` : ''}
+        ${isOwner
+          ? `<button class="btn-danger" onclick="deleteEvent(${ev.id})">🗑 Delete</button>`
+          : `<button class="btn-danger" onclick="leaveEvent(${ev.id})">🚪 Leave</button>`}
       </div>
     `;
     eventsGrid.appendChild(card);
@@ -80,7 +86,7 @@ async function loadEvents(search = '') {
   }
 }
 
-// View — simple detail alert for now (guest list & budget pages are the deep-dive views)
+
 function viewEvent(id) {
   const ev = allEvents.find(e => e.id === id);
   if (!ev) return;
@@ -103,7 +109,6 @@ async function deleteEvent(id) {
   }
 }
 
-// ---- Edit modal ----
 const editModal = document.getElementById('editModal');
 const editForm = document.getElementById('editEventForm');
 const editAlertBox = document.getElementById('editAlertBox');
@@ -166,22 +171,162 @@ editForm.addEventListener('submit', async (e) => {
   }
 });
 
-// ---- Search (debounced) ----
 let searchTimer;
 searchInput.addEventListener('input', () => {
   clearTimeout(searchTimer);
   searchTimer = setTimeout(() => loadEvents(searchInput.value.trim()), 300);
 });
 
-// ---- Success banner right after redirect from create-event.html ----
 if (sessionStorage.getItem('eventCreated')) {
   sessionStorage.removeItem('eventCreated');
   showAlert('Event created successfully!');
 }
 
-// ---- Pick up a ?search= query param (e.g. from the Dashboard search box) ----
 const urlParams = new URLSearchParams(window.location.search);
 const initialSearch = urlParams.get('search') || '';
 if (initialSearch) searchInput.value = initialSearch;
 
 loadEvents(initialSearch);
+
+
+async function leaveEvent(eventId) {
+  if (!confirm('Leave this event? You will lose access to it unless invited again.')) return;
+  try {
+    const collabRes = await fetch(`/api/events/${eventId}/collaborators`);
+    const collabData = await collabRes.json();
+    if (!collabRes.ok) { showAlert(collabData.message || 'Failed to leave event.', 'error'); return; }
+
+    const mine = collabData.collaborators.find(c => c.is_me);
+    if (!mine) { showAlert('Could not find your collaborator record.', 'error'); return; }
+
+    const res = await fetch(`/api/events/${eventId}/collaborators/${mine.id}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (!res.ok) { showAlert(data.message || 'Failed to leave event.', 'error'); return; }
+    showAlert('You have left the event.');
+    loadEvents(searchInput.value.trim());
+  } catch (err) {
+    console.error('leaveEvent error:', err);
+    showAlert('Network error while leaving the event.', 'error');
+  }
+}
+
+const collabModal = document.getElementById('collabModal');
+const collabAlertBox = document.getElementById('collabAlertBox');
+const collabInviteForm = document.getElementById('collabInviteForm');
+const collabList = document.getElementById('collabList');
+let currentCollabEventId = null;
+
+function showCollabAlert(message, type = 'error') {
+  collabAlertBox.textContent = message;
+  collabAlertBox.className = `alert-msg show ${type}`;
+  setTimeout(() => collabAlertBox.classList.remove('show'), 4000);
+}
+
+async function openCollabModal(eventId) {
+  currentCollabEventId = eventId;
+  const ev = allEvents.find(e => e.id === eventId);
+  document.getElementById('collabEventName').textContent = ev ? ev.event_name : '';
+  collabAlertBox.classList.remove('show');
+  collabModal.classList.add('show');
+  await loadCollaborators();
+}
+
+function closeCollabModal() {
+  collabModal.classList.remove('show');
+  currentCollabEventId = null;
+}
+
+async function loadCollaborators() {
+  if (!currentCollabEventId) return;
+  try {
+    const res = await fetch(`/api/events/${currentCollabEventId}/collaborators`);
+    const data = await res.json();
+    if (!res.ok) { showCollabAlert(data.message || 'Failed to load collaborators.'); return; }
+
+    const isOwner = !!data.event.is_owner;
+    collabInviteForm.style.display = isOwner ? 'flex' : 'none';
+
+    if (!data.collaborators.length) {
+      collabList.innerHTML = `<div class="empty-state" style="padding:16px;">No collaborators yet. ${isOwner ? 'Invite someone above!' : ''}</div>`;
+      return;
+    }
+
+    collabList.innerHTML = data.collaborators.map((c) => `
+      <div class="collab-row">
+        <div class="collab-row-info">
+          <div class="collab-row-name">
+            ${escapeHtml(c.full_name)}
+            <span class="collab-status-tag ${c.status}">${c.status}</span>
+          </div>
+          <div class="collab-row-email">${escapeHtml(c.email)} · invited by ${escapeHtml(c.invited_by_name)}</div>
+        </div>
+        <div class="collab-row-actions">
+          ${isOwner
+            ? `<select class="collab-role-select" onchange="changeCollabRole(${c.id}, this.value)">
+                 <option value="editor" ${c.role === 'editor' ? 'selected' : ''}>Editor</option>
+                 <option value="viewer" ${c.role === 'viewer' ? 'selected' : ''}>Viewer</option>
+               </select>
+               <button class="btn-danger" onclick="removeCollabRow(${c.id})">Remove</button>`
+            : `<span class="role-badge ${c.role}">${c.role}</span>`}
+        </div>
+      </div>
+    `).join('');
+  } catch (err) {
+    console.error('loadCollaborators error:', err);
+    showCollabAlert('Network error while loading collaborators.');
+  }
+}
+
+collabInviteForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!currentCollabEventId) return;
+  const email = document.getElementById('collab_email').value.trim();
+  const role = document.getElementById('collab_role').value;
+
+  try {
+    const res = await fetch(`/api/events/${currentCollabEventId}/collaborators`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, role }),
+    });
+    const data = await res.json();
+    if (!res.ok) { showCollabAlert(data.message || 'Failed to send invitation.'); return; }
+    showCollabAlert(data.message, 'success');
+    document.getElementById('collab_email').value = '';
+    await loadCollaborators();
+  } catch (err) {
+    console.error('invite collaborator error:', err);
+    showCollabAlert('Network error while sending the invitation.');
+  }
+});
+
+async function changeCollabRole(collabId, role) {
+  try {
+    const res = await fetch(`/api/events/${currentCollabEventId}/collaborators/${collabId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role }),
+    });
+    const data = await res.json();
+    if (!res.ok) { showCollabAlert(data.message || 'Failed to update role.'); return; }
+    showCollabAlert('Role updated.', 'success');
+    await loadCollaborators();
+  } catch (err) {
+    console.error('changeCollabRole error:', err);
+    showCollabAlert('Network error while updating the role.');
+  }
+}
+
+async function removeCollabRow(collabId) {
+  if (!confirm('Remove this collaborator from the event?')) return;
+  try {
+    const res = await fetch(`/api/events/${currentCollabEventId}/collaborators/${collabId}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (!res.ok) { showCollabAlert(data.message || 'Failed to remove collaborator.'); return; }
+    showCollabAlert('Collaborator removed.', 'success');
+    await loadCollaborators();
+  } catch (err) {
+    console.error('removeCollabRow error:', err);
+    showCollabAlert('Network error while removing the collaborator.');
+  }
+}

@@ -105,7 +105,6 @@ async function loadSummary() {
   }
 }
 
-// Category analysis (drives pie/bar charts + tabs)
 async function loadCategoryAnalysis() {
   try {
     const res = await fetch(`/api/analysis/category-summary/${currentEventId}`);
@@ -162,7 +161,7 @@ function setCategoryFilter(catId) {
   renderExpenseTable();
 }
 
-// Allocations
+
 async function allocateBudget() {
   const category_id = document.getElementById('allocCategory').value;
   const allocation_type = document.getElementById('allocType').value;
@@ -190,7 +189,7 @@ async function allocateBudget() {
   }
 }
 
-//Expenses
+
 async function loadExpenses() {
   try {
     const res = await fetch(`/api/budget/items?event_id=${currentEventId}`);
@@ -236,7 +235,6 @@ function renderExpenseTable() {
   });
 }
 
-// Add/Edit Expense modal
 const expenseModal = document.getElementById('expenseModal');
 const expenseForm = document.getElementById('expenseForm');
 const expenseAlertBox = document.getElementById('expenseAlertBox');
@@ -308,7 +306,6 @@ async function deleteExpense(id) {
   }
 }
 
-// Details / Payments modal 
 const detailsModal = document.getElementById('detailsModal');
 const paymentForm = document.getElementById('paymentForm');
 const detailsAlertBox = document.getElementById('detailsAlertBox');
@@ -381,7 +378,7 @@ paymentForm.addEventListener('submit', async (e) => {
     renderPaymentHistory(data.payments);
     showAlert('Payment recorded successfully.');
     await loadEventBudget();
-    // refresh the details summary in place
+
     openDetailsModal(currentDetailsItemId);
   } catch (err) {
     console.error('add payment error:', err);
@@ -405,7 +402,6 @@ async function deletePayment(paymentId) {
   }
 }
 
-// Recommendations & Reallocation 
 async function loadRecommendations() {
   try {
     const res = await fetch(`/api/analysis/recommendations/${currentEventId}`);
@@ -437,3 +433,5 @@ async function loadRecommendations() {
     console.error('loadRecommendations error:', err);
   }
 }
+ 
+

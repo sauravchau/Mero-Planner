@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Panel – Mero Planner</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/dashboard.css"/>
+  <link rel="stylesheet" href="/css/app.css"/>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo">🛡️</div>
+      <div>
+        <div class="sidebar-title">Admin Panel</div>
+        <div class="sidebar-sub">Mero Planner</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <p class="nav-section-label">Manage</p>
+      <a href="#" class="nav-item active" data-tab="vendors" onclick="switchTab(event,'vendors')">🏪 Vendor Approvals</a>
+      <a href="#" class="nav-item" data-tab="users" onclick="switchTab(event,'users')">👥 Users</a>
+
+      <a href="/logout" class="nav-item logout">🚪 Logout</a>
+    </nav>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <h2 class="page-title">Admin Panel</h2>
+    </header>
+
+    <div class="content-area">
+      <div id="alertBox" class="alert-msg"></div>
+
+      <!-- VENDORS TAB -->
+      <div id="tab-vendors" class="tab-panel">
+        <div class="category-tabs">
+          <button class="category-tab active" data-status="pending" onclick="filterVendors(this,'pending')">Pending</button>
+          <button class="category-tab" data-status="approved" onclick="filterVendors(this,'approved')">Approved</button>
+          <button class="category-tab" data-status="rejected" onclick="filterVendors(this,'rejected')">Rejected</button>
+          <button class="category-tab" data-status="" onclick="filterVendors(this,'')">All</button>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Business</th><th>Category</th><th>Location</th><th>Price</th><th>Owner Email</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody id="vendorsBody"></tbody>
+          </table>
+        </div>
+        <div id="vendorsEmpty" class="empty-state" style="display:none;">No vendors in this category.</div>
+      </div>
+
+      <!-- USERS TAB -->
+      <div id="tab-users" class="tab-panel" style="display:none;">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th><th>Action</th></tr></thead>
+            <tbody id="usersBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="/js/admin-dashboard.js"></script>
+</body>
+</html>

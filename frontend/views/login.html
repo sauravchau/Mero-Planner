@@ -6,24 +6,24 @@
   <title>Mero Planner – Login</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/login.css" />
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 
 <div class="card">
 
-  <!-- LEFT PANEL -->
   <div class="left">
     <div class="brand">
-      <div class="logo-icon">🗓️</div>
+      <div class="logo-icon" id="brandIcon">🗓️</div>
       <h1>Mero Planner</h1>
       <div class="brand-nepali">मेरो प्लानर</div>
-      <div class="brand-tagline">
+      <div class="brand-tagline" id="brandTagline">
         Nepal's smart event planning platform<br>
         for weddings, bartabanda, engagements and celebrations.
       </div>
     </div>
 
-    <div class="features">
+    <div class="features" id="userFeatures">
       <div class="feature-item">
         <div class="feature-icon fi-red">🔥</div>
         Smart Budget Management
@@ -41,23 +41,39 @@
         Guest &amp; Collaboration Tools
       </div>
     </div>
+
+    <div class="features" id="vendorFeatures" style="display:none;">
+      <div class="feature-item">
+        <div class="feature-icon fi-red">📝</div>
+        Simple self-registration
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon fi-blue">✅</div>
+        Reviewed by our admin team
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon fi-green">📖</div>
+        Manage bookings in one place
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon fi-gold">⭐</div>
+        Build your rating with every event
+      </div>
+    </div>
   </div>
 
-  <!-- RIGHT PANEL -->
   <div class="right">
-    <h2>Welcome back</h2>
-    <p class="subtitle">Login to continue planning your event</p>
+    <h2 id="formTitle">Welcome back</h2>
+    <p class="subtitle" id="formSubtitle">Login to continue planning your event</p>
 
-    <!-- Role Tabs -->
     <div class="role-tabs">
-      <button class="role-tab active" onclick="setRole(this)">Event Organizer</button>
-      <button class="role-tab" onclick="setRole(this)">Admin</button>
+      <button type="button" class="role-tab active" id="tabUser" onclick="switchRole('user')">👤 Customer</button>
+      <button type="button" class="role-tab" id="tabVendor" onclick="switchRole('vendor')">🏪 Vendor</button>
     </div>
 
-    <!-- Alert -->
     <div class="alert" id="alert"></div>
 
-    <!-- Form -->
+   
     <div class="form-body">
       <div class="field-label">Email Address</div>
       <div class="input-wrap">
@@ -76,17 +92,23 @@
           <input type="checkbox" id="remember" />
           Remember me
         </label>
-        <a href="#" class="forgot">Forgot password?</a>
+        <a href="/forgot-password" class="forgot">Forgot password?</a>
       </div>
 
       <button class="btn-login" id="loginBtn" onclick="handleLogin()">
   Login to Mero Planner
 </button>
 
-<div style="height:40px;"></div>
+<div class="divider">OR</div>
+<div id="googleButtonContainer" style="display:flex; justify-content:center;"></div>
 
-<p class="signup-link">
+<div style="height:24px;"></div>
+
+<p class="signup-link" id="signupPrimary">
   Don't have an account? <a href="/register">Create one free</a>
+</p>
+<p class="signup-link" id="signupSecondary">
+  Are you a vendor? <a href="/vendor-register">Register your business</a>
 </p>
     </div>
   </div>

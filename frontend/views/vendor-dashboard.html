@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vendor Panel – Mero Planner</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/dashboard.css"/>
+  <link rel="stylesheet" href="/css/app.css"/>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo">🏪</div>
+      <div>
+        <div class="sidebar-title">Vendor Panel</div>
+        <div class="sidebar-sub">Mero Planner</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <p class="nav-section-label">Business</p>
+      <a href="#" class="nav-item active" data-tab="profile" onclick="switchTab(event,'profile')">🏪 My Business</a>
+      <a href="#" class="nav-item" data-tab="bookings" onclick="switchTab(event,'bookings')">📖 Bookings</a>
+      <a href="#" class="nav-item" data-tab="reviews" onclick="switchTab(event,'reviews')">⭐ Reviews</a>
+
+      <a href="/logout" class="nav-item logout">🚪 Logout</a>
+    </nav>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <h2 class="page-title">Vendor Panel</h2>
+    </header>
+
+    <div class="content-area">
+      <div id="alertBox" class="alert-msg"></div>
+      <div id="statusBanner" style="display:none;"></div>
+
+      <div id="tab-profile" class="tab-panel">
+        <div class="form-card">
+          <h4 style="margin-bottom:16px;">Business Details</h4>
+          <div class="form-grid">
+            <div class="form-group full">
+              <label>Business Name</label>
+              <input type="text" id="p_vendor_name"/>
+            </div>
+            <div class="form-group">
+              <label>Category</label>
+              <input type="text" id="p_category"/>
+            </div>
+            <div class="form-group">
+              <label>Location</label>
+              <input type="text" id="p_location"/>
+            </div>
+            <div class="form-group">
+              <label>Price (NPR)</label>
+              <input type="number" id="p_price_npr"/>
+            </div>
+            <div class="form-group">
+              <label>Guest Capacity</label>
+              <input type="number" id="p_guest_capacity"/>
+            </div>
+            <div class="form-group">
+              <label>Experience (years)</label>
+              <input type="number" id="p_experience_years"/>
+            </div>
+            <div class="form-group">
+              <label>Contact Phone</label>
+              <input type="text" id="p_contact_phone"/>
+            </div>
+            <div class="form-group">
+              <label>Current Rating</label>
+              <input type="text" id="p_rating" disabled/>
+            </div>
+            <div class="form-group full">
+              <label>Description</label>
+              <textarea id="p_description" rows="4"></textarea>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn-primary" onclick="saveProfile()">Save Changes</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-bookings" class="tab-panel" style="display:none;">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Customer</th><th>Event Date</th><th>Message</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody id="bookingsBody"></tbody>
+          </table>
+        </div>
+        <div id="bookingsEmpty" class="empty-state" style="display:none;">No bookings yet.</div>
+      </div>
+
+      <div id="tab-reviews" class="tab-panel" style="display:none;">
+        <div class="summary-row" style="grid-template-columns:1fr 1fr;">
+          <div class="entity-card"><div class="ec-title" id="reviewAvg">–</div><div class="ec-meta">Average rating</div></div>
+          <div class="entity-card"><div class="ec-title" id="reviewTotal">0</div><div class="ec-meta">Total reviews</div></div>
+        </div>
+        <div id="reviewsList" style="margin-top:16px;"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="/js/vendor-dashboard.js"></script>
+</body>
+</html>

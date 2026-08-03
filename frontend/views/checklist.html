@@ -13,7 +13,6 @@
 
 <div class="app-layout">
 
-  <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
       <div class="sidebar-logo">🗓️</div>
@@ -34,13 +33,12 @@
       <a href="/vendors.html" class="nav-item">🏪 Vendors</a>
       <a href="/checklist.html" class="nav-item active">✅ Checklists</a>
 
-      <p class="nav-section-label">Insights</p>
-      <a href="#" class="nav-item">📈 Analytics</a>
+  
+  
       <a href="/logout" class="nav-item logout">🚪 Logout</a>
     </nav>
   </aside>
 
-  <!-- MAIN -->
   <div class="main-content">
     <header class="topbar">
       <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
@@ -49,7 +47,6 @@
         <select id="eventSelect" style="min-width:220px;"><option value="">Select an event…</option></select>
       </div>
       <div class="topbar-right" style="margin-left:auto; display:flex; gap:10px;">
-        <button class="btn-icon-sm" id="regenerateBtn">🔄 Regenerate</button>
         <button class="btn-primary" id="addTaskBtn">+ Add Task</button>
       </div>
     </header>
@@ -60,7 +57,6 @@
 
       <div id="checklistContent" style="display:none;">
 
-        <!-- Progress Summary -->
         <div class="card checklist-progress-card">
           <div class="card-header">
             <h4>Progress</h4>
@@ -72,7 +68,6 @@
           <div id="summaryPills" class="summary-pills"></div>
         </div>
 
-        <!-- Toolbar: search / filters -->
         <div class="page-toolbar checklist-toolbar">
           <div class="toolbar-search">
             <input type="text" id="searchInput" placeholder="🔍 Search tasks…"/>
@@ -103,7 +98,6 @@
   </div>
 </div>
 
-<!-- ADD / EDIT TASK MODAL -->
 <div class="modal-overlay" id="taskModal">
   <div class="modal-box">
     <div class="modal-header">

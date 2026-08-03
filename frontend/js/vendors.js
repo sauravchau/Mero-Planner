@@ -16,7 +16,7 @@ function escapeHtml(str) {
 }
 function formatMoney(n) { return 'Rs ' + Number(n || 0).toLocaleString('en-IN'); }
 
-// ---- Init ----
+
 (async function init() {
   await loadFilters();
 })();
@@ -39,7 +39,7 @@ async function loadFilters() {
   }
 }
 
-// ---- Recommendation ----
+
 prefForm.addEventListener('submit', async (e) => {
   e.preventDefault();
 
@@ -47,7 +47,6 @@ prefForm.addEventListener('submit', async (e) => {
     location: document.getElementById('pref_location').value.trim(),
     budget: document.getElementById('pref_budget').value,
     guest_capacity: document.getElementById('pref_guests').value || 0,
-    rating: document.getElementById('pref_rating').value || 0,
     category: document.getElementById('pref_category').value || undefined,
   };
 
@@ -77,7 +76,7 @@ function renderRecommendations(recs, prefs) {
     resultsGrid.innerHTML = '';
     resultsHeader.style.display = 'none';
     emptyResults.style.display = 'block';
-    emptyResults.innerHTML = 'No vendors matched your guest capacity or minimum rating. Try relaxing your filters.';
+    emptyResults.innerHTML = 'No vendors matched your guest capacity. Try relaxing your filters.';
     return;
   }
 
@@ -104,7 +103,7 @@ function renderRecommendations(recs, prefs) {
       <div class="ec-desc">${escapeHtml(v.description || '')}</div>
       <div class="ec-actions">
         <button class="btn-secondary" onclick='showVendorDetails(${JSON.stringify(v).replace(/'/g, "&#39;")})'>View Details</button>
-        <button class="btn-primary" onclick="showAlert('Booking requests are coming soon!', 'success')">Book Now</button>
+        <button class="btn-primary" onclick="openBookingModal(${v.id}, '${escapeHtml(v.vendor_name).replace(/'/g, "&#39;")}')">Book Now</button>
       </div>
     </div>
   `).join('');
@@ -117,7 +116,7 @@ function showVendorDetails(v) {
     <p><strong>Category:</strong> ${escapeHtml(v.category)}</p>
     <p><strong>Location:</strong> ${escapeHtml(v.location)}</p>
     <p><strong>Price:</strong> ${formatMoney(v.price_npr)}</p>
-    <p><strong>Rating:</strong> ${Number(v.rating).toFixed(1)} ⭐</p>
+    <p><strong>Rating:</strong> ${Number(v.rating).toFixed(1)} ⭐ (average of all customer ratings)</p>
     <p><strong>Experience:</strong> ${v.experience_years ? v.experience_years + ' years' : 'Not listed'}</p>
     <p><strong>Guest Capacity:</strong> ${v.guest_capacity ? v.guest_capacity : 'N/A'}</p>
     <p><strong>Contact:</strong> ${escapeHtml(v.contact_phone || 'Not listed')}</p>
@@ -128,3 +127,40 @@ function showVendorDetails(v) {
 function closeDetailsModal() {
   document.getElementById('detailsModal').classList.remove('show');
 }
+
+
+function openBookingModal(vendorId, vendorName) {
+  document.getElementById('booking_vendor_id').value = vendorId;
+  document.getElementById('bookingTitle').textContent = `Book ${vendorName}`;
+  document.getElementById('booking_event_date').value = '';
+  document.getElementById('booking_message').value = '';
+  document.getElementById('bookingModal').classList.add('show');
+}
+function closeBookingModal() {
+  document.getElementById('bookingModal').classList.remove('show');
+}
+
+document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const vendor_id = document.getElementById('booking_vendor_id').value;
+  const event_date = document.getElementById('booking_event_date').value;
+  const message = document.getElementById('booking_message').value.trim();
+
+  if (!event_date) { showAlert('Please choose an event date.', 'error'); return; }
+
+  try {
+    const res = await fetch('/api/bookings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ vendor_id, event_date, message }),
+    });
+    const data = await res.json();
+    if (!res.ok) { showAlert(data.message || 'Failed to create booking.', 'error'); return; }
+
+    closeBookingModal();
+    showAlert('Booking request sent! Track its status under "My Bookings".', 'success');
+  } catch (err) {
+    console.error('booking error:', err);
+    showAlert('Network error while sending the booking request.', 'error');
+  }
+});

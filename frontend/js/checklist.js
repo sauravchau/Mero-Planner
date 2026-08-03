@@ -75,7 +75,6 @@ function bindStaticEvents() {
   statusFilter.addEventListener('change', loadChecklist);
   sortBySelect.addEventListener('change', loadChecklist);
 
-  document.getElementById('regenerateBtn').addEventListener('click', regenerateChecklist);
   document.getElementById('addTaskBtn').addEventListener('click', () => openTaskModal());
   document.getElementById('taskCancelBtn').addEventListener('click', closeTaskModal);
   document.getElementById('taskModalCloseBtn').addEventListener('click', closeTaskModal);
@@ -146,7 +145,6 @@ function populateCategoryFilter(templateCategories, items) {
     options.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
   categoryFilter.value = current;
 
-  // Also refresh the datalist used by the add/edit task modal.
   const datalist = document.getElementById('categoryOptions');
   datalist.innerHTML = options.map(c => `<option value="${escapeHtml(c)}"></option>`).join('');
 }
@@ -221,7 +219,6 @@ function renderTasks(items) {
   });
 }
 
-// ---- status toggle -----------------------------------------------------------
 
 async function quickStatusUpdate(itemId, status) {
   try {
@@ -239,7 +236,6 @@ async function quickStatusUpdate(itemId, status) {
   }
 }
 
-// ---- delete (custom tasks only) ------------------------------------------------
 
 async function deleteTask(itemId) {
   if (!confirm('Delete this custom task? This cannot be undone.')) return;
@@ -255,24 +251,7 @@ async function deleteTask(itemId) {
   }
 }
 
-// ---- regenerate ----------------------------------------------------------------
 
-async function regenerateChecklist() {
-  if (!currentEventId) { showAlert('Please select an event first.', 'error'); return; }
-  if (!confirm('Regenerate the auto-generated tasks for this event? Your custom tasks will be kept.')) return;
-  try {
-    const res = await fetch(`/api/checklist/generate/${currentEventId}`, { method: 'POST' });
-    const data = await res.json();
-    if (!res.ok) { showAlert(data.message || 'Failed to regenerate checklist.', 'error'); return; }
-    showAlert(data.message || 'Checklist regenerated.');
-    await loadChecklist();
-  } catch (err) {
-    console.error('regenerateChecklist error:', err);
-    showAlert('Network error while regenerating checklist.', 'error');
-  }
-}
-
-// ---- add / edit modal ------------------------------------------------------------
 
 function openTaskModal(item) {
   if (!currentEventId) { showAlert('Please select an event first.', 'error'); return; }
@@ -315,14 +294,12 @@ async function saveTask() {
   try {
     let res, data;
     if (id) {
-      // Editing an existing task (generated or custom)
       res = await fetch(`/api/checklist/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
     } else {
-      // Adding a brand-new custom task
       res = await fetch('/api/checklist/custom', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

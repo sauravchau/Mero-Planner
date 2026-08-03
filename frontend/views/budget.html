@@ -13,7 +13,6 @@
 
 <div class="app-layout">
 
-  <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
       <div class="sidebar-logo">🗓️</div>
@@ -33,15 +32,12 @@
       <a href="/budget.html" class="nav-item active">💰 Budget</a>
       <a href="/vendors.html" class="nav-item">🏪 Vendors</a>
       <a href="/checklist.html" class="nav-item">✅ Checklists</a>
+  
 
-      <p class="nav-section-label">Insights</p>
-      <a href="#" class="nav-item">📈 Analytics</a>
-    
       <a href="/logout" class="nav-item logout">🚪 Logout</a>
     </nav>
   </aside>
 
-  <!-- MAIN -->
   <div class="main-content">
     <header class="topbar">
       <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
@@ -60,7 +56,6 @@
 
       <div id="budgetContent" style="display:none;">
 
-        <!-- Summary Cards -->
         <div class="summary-row">
           <div class="stat-card">
             <div class="stat-icon red">💰</div>
@@ -100,7 +95,6 @@
           </div>
         </div>
 
-        <!-- Category tabs -->
         <div class="card" style="margin-bottom:22px;">
           <div class="card-header"><h4>Allocate Budget by Category</h4></div>
           <div class="form-grid">
@@ -158,7 +152,6 @@
   </div>
 </div>
 
-<!-- ADD/EDIT EXPENSE MODAL -->
 <div class="modal-overlay" id="expenseModal">
   <div class="modal-box">
     <div class="modal-header">
@@ -192,7 +185,6 @@
   </div>
 </div>
 
-<!-- EXPENSE DETAILS / PAYMENTS MODAL -->
 <div class="modal-overlay" id="detailsModal">
   <div class="modal-box">
     <div class="modal-header">

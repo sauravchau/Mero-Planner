@@ -12,7 +12,7 @@
 
 <div class="app-layout">
 
-  <!-- SIDEBAR -->
+ 
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
       <div class="sidebar-logo">🗓️</div>
@@ -33,14 +33,12 @@
       <a href="/vendors.html" class="nav-item">🏪 Vendors</a>
       <a href="/checklist.html" class="nav-item">✅ Checklists</a>
 
-      <p class="nav-section-label">Insights</p>
-      <a href="#" class="nav-item">📈 Analytics</a>
 
       <a href="/logout" class="nav-item logout">🚪 Logout</a>
     </nav>
   </aside>
 
-  <!-- MAIN -->
+ 
   <div class="main-content">
     <header class="topbar">
       <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
@@ -53,7 +51,7 @@
     <div class="content-area">
       <div id="alertBox" class="alert-msg"></div>
 
-      <!-- Toolbar -->
+     
       <div class="page-toolbar">
         <div class="toolbar-search">
           <input type="text" id="searchInput" placeholder="🔍 Search by event name, category or location…"/>
@@ -67,7 +65,7 @@
   </div>
 </div>
 
-<!-- EDIT EVENT MODAL -->
+
 <div class="modal-overlay" id="editModal">
   <div class="modal-box">
     <div class="modal-header">
@@ -137,6 +135,28 @@
         <button type="button" class="btn-secondary" onclick="closeEditModal()">Cancel</button>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- Collaboration Modal -->
+<div class="modal-overlay" id="collabModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>Collaboration — <span id="collabEventName"></span></h3>
+      <button class="modal-close" onclick="closeCollabModal()">✕</button>
+    </div>
+    <div id="collabAlertBox" class="alert-msg"></div>
+
+    <form id="collabInviteForm" class="collab-invite-form">
+      <input type="email" id="collab_email" placeholder="Registered user's email…" required/>
+      <select id="collab_role">
+        <option value="editor">Editor</option>
+        <option value="viewer">Viewer</option>
+      </select>
+      <button type="submit" class="btn-primary">Invite</button>
+    </form>
+
+    <div class="collab-list" id="collabList"></div>
   </div>
 </div>
 

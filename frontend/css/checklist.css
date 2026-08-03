@@ -16,16 +16,13 @@
 .summary-pill.progress  { background: #eaf2fd; color: #2563eb; border-color: #d6e7fc; }
 .summary-pill.overdue   { background: #fdecea; color: #c0392b; border-color: #f8cfca; }
 
-/* Toolbar */
 .checklist-toolbar { margin-bottom: 18px; }
 
-/* Task grid */
 .task-grid {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 16px;
 }
 
-/* Task card */
 .task-card {
   background: #fff; border-radius: 14px; padding: 16px 18px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.04);
@@ -82,7 +79,6 @@
 .task-actions .btn-complete { background: #eafaf1; color: #16a34a; }
 .task-actions .btn-complete:hover { background: #d3f3e2; }
 
-/* Modal textarea */
 #taskModal textarea {
   padding: 10px 12px; border: 1.5px solid #f0e8da; border-radius: 8px; font-size: 13.5px;
   font-family: 'Inter', sans-serif; outline: none; background: #fdf8f0; color: #1a1a1a; resize: vertical;

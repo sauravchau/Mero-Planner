@@ -36,7 +36,7 @@ async function loadDashboard() {
     const d = await res.json();
     if (!res.ok) { showAlert(d.message || 'Failed to load dashboard data.'); return; }
 
-    
+  
     document.getElementById('upcomingCountText').textContent = d.upcoming_events;
     document.getElementById('guestsConfirmedStat').textContent = d.confirmed_guests;
     document.getElementById('tasksDonePct').textContent = `${d.budget_utilization_percent}%`;
@@ -48,7 +48,7 @@ async function loadDashboard() {
     document.getElementById('statGuests').textContent = `${d.confirmed_guests} / ${d.total_guests}`;
     document.getElementById('statEvents').textContent = d.total_events;
 
-    
+  
     const preview = document.getElementById('eventsPreview');
     const previewEmpty = document.getElementById('eventsPreviewEmpty');
     if (!d.recent_events.length) {
@@ -68,7 +68,7 @@ async function loadDashboard() {
       `).join('');
     }
 
-    // Budget overview donut 
+    
     document.getElementById('budgetTotalText').innerHTML =
       `${formatMoney(d.total_paid)}<span>spent of ${formatMoney(d.total_budget)} total</span>`;
     document.getElementById('budgetDonut').style.background =
@@ -84,13 +84,11 @@ async function loadDashboard() {
       `).join('');
     }
 
-    // Guest summary
     document.getElementById('guestTotalNum').textContent = d.total_guests;
     document.getElementById('guestInvitedNum').textContent = d.invited_guests;
     document.getElementById('guestConfirmedNum').textContent = d.confirmed_guests;
     document.getElementById('guestPendingNum').textContent = d.pending_invitations;
 
-    
     document.getElementById('statUpcoming').textContent = d.upcoming_events;
     document.getElementById('statInProgress').textContent = d.inprogress_events;
     document.getElementById('statCompleted').textContent = d.completed_events;
@@ -102,12 +100,6 @@ async function loadDashboard() {
     showAlert('Network error while loading the dashboard.');
   }
 }
-
-document.getElementById('dashboardSearch').addEventListener('keydown', (e) => {
-  if (e.key === 'Enter' && e.target.value.trim()) {
-    window.location.href = `/my-events.html?search=${encodeURIComponent(e.target.value.trim())}`;
-  }
-});
 
 loadUser();
 loadDashboard();
