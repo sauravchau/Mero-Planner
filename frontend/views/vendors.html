@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vendors – Mero Planner</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/dashboard.css"/>
+  <link rel="stylesheet" href="/css/app.css"/>
+</head>
+<body>
+
+<div class="app-layout">
+
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo">🗓️</div>
+      <div>
+        <div class="sidebar-title">Mero Planner</div>
+        <div class="sidebar-sub">मेरो प्लानर</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <p class="nav-section-label">Main</p>
+      <a href="/dashboard" class="nav-item">📊 Dashboard</a>
+      <a href="/my-events.html" class="nav-item">📅 My Events <span class="nav-count" id="navEventCount">0</span></a>
+      <a href="/guest-list.html" class="nav-item">👥 Guest List</a>
+
+      <p class="nav-section-label">Management</p>
+      <a href="/budget.html" class="nav-item">💰 Budget</a>
+      <a href="/vendors.html" class="nav-item active">🏪 Vendors</a>
+      <a href="/my-bookings.html" class="nav-item">📖 My Bookings</a>
+      <a href="/checklist.html" class="nav-item">✅ Checklists</a>
+    
+      <a href="/logout" class="nav-item logout">🚪 Logout</a>
+    </nav>
+  </aside>
+
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <h2 class="page-title">Vendors</h2>
+    </header>
+
+    <div class="content-area">
+      <div id="alertBox" class="alert-msg"></div>
+
+    
+      <div class="card" style="margin-bottom:22px;">
+        <div class="card-header"><h4>💍 Find Your Best-Match Vendors</h4></div>
+        <p style="font-size:12.5px; color:#777; margin:-6px 0 16px;">
+          Tell us what you're looking for and we'll rank vendors using a cosine-similarity match
+          across price, location, and guest capacity.
+        </p>
+        <form id="prefForm">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Preferred Location</label>
+              <input type="text" id="pref_location" list="locationList" placeholder="e.g. Kathmandu, Pokhara…"/>
+              <datalist id="locationList"></datalist>
+            </div>
+            <div class="form-group">
+              <label>Maximum Budget (NPR) <span class="req">*</span></label>
+              <input type="number" id="pref_budget" min="1" step="1" placeholder="e.g. 400000" required/>
+            </div>
+            <div class="form-group">
+              <label>Expected Guests</label>
+              <input type="number" id="pref_guests" min="0" step="1" placeholder="e.g. 500"/>
+            </div>
+            <div class="form-group">
+              <label>Vendor Category</label>
+              <select id="pref_category"><option value="">All Categories</option></select>
+            </div>
+            <div class="form-group" style="justify-content:flex-end;">
+              <button type="submit" class="btn-primary">🔍 Find Vendors</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+     
+      <div id="resultsHeader" style="display:none; margin-bottom:12px; font-size:13px; color:#777;"></div>
+      <div id="resultsGrid" class="cards-grid"></div>
+      <div id="emptyResults" class="empty-state">Fill in your preferences above and click <strong>Find Vendors</strong> to see your top 5 matches.</div>
+
+    </div>
+  </div>
+</div>
+
+
+<div class="modal-overlay" id="detailsModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="detailsTitle">Vendor Details</h3>
+      <button class="modal-close" onclick="closeDetailsModal()">✕</button>
+    </div>
+    <div id="detailsBody" style="font-size:13px; color:#444; line-height:1.9;"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="bookingModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="bookingTitle">Book Vendor</h3>
+      <button class="modal-close" onclick="closeBookingModal()">✕</button>
+    </div>
+    <form id="bookingForm">
+      <input type="hidden" id="booking_vendor_id"/>
+      <div class="form-group full">
+        <label>Event Date <span class="req">*</span></label>
+        <input type="date" id="booking_event_date" required/>
+      </div>
+      <div class="form-group full">
+        <label>Message to Vendor (optional)</label>
+        <textarea id="booking_message" rows="3" placeholder="Anything the vendor should know…"></textarea>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn-primary">Send Booking Request</button>
+        <button type="button" class="btn-secondary" onclick="closeBookingModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/js/nav.js"></script>
+<script src="/js/vendors.js"></script>
+</body>
+</html>

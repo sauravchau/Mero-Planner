@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Bookings – Mero Planner</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/dashboard.css"/>
+  <link rel="stylesheet" href="/css/app.css"/>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo">🗓️</div>
+      <div>
+        <div class="sidebar-title">Mero Planner</div>
+        <div class="sidebar-sub">मेरो प्लानर</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <p class="nav-section-label">Main</p>
+      <a href="/dashboard" class="nav-item">📊 Dashboard</a>
+      <a href="/my-events.html" class="nav-item">📅 My Events <span class="nav-count" id="navEventCount">0</span></a>
+      <a href="/guest-list.html" class="nav-item">👥 Guest List</a>
+
+      <p class="nav-section-label">Management</p>
+      <a href="/budget.html" class="nav-item">💰 Budget</a>
+      <a href="/vendors.html" class="nav-item">🏪 Vendors</a>
+      <a href="/my-bookings.html" class="nav-item active">📖 My Bookings</a>
+      <a href="/checklist.html" class="nav-item">✅ Checklists</a>
+
+      <a href="/logout" class="nav-item logout">🚪 Logout</a>
+    </nav>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <h2 class="page-title">My Bookings</h2>
+    </header>
+
+    <div class="content-area">
+      <div id="alertBox" class="alert-msg"></div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Vendor</th><th>Category</th><th>Event Date</th><th>Status</th><th>Rating</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="bookingsBody"></tbody>
+        </table>
+      </div>
+      <div id="emptyState" class="empty-state" style="display:none;">
+        You haven't booked any vendors yet. Head to the <a href="/vendors.html">Vendors</a> page to find one.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="rateModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="rateTitle">Rate Vendor</h3>
+      <button class="modal-close" onclick="closeRateModal()">✕</button>
+    </div>
+    <form id="rateForm">
+      <input type="hidden" id="rate_booking_id"/>
+      <div class="form-group full">
+        <label>Your Rating <span class="req">*</span></label>
+        <select id="rate_value" required>
+          <option value="">Select a rating…</option>
+          <option value="5">⭐⭐⭐⭐⭐ Excellent (5)</option>
+          <option value="4">⭐⭐⭐⭐ Good (4)</option>
+          <option value="3">⭐⭐⭐ Average (3)</option>
+          <option value="2">⭐⭐ Below Average (2)</option>
+          <option value="1">⭐ Poor (1)</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label>Comment (optional)</label>
+        <textarea id="rate_comment" rows="3" placeholder="How was your experience?"></textarea>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn-primary">Submit Rating</button>
+        <button type="button" class="btn-secondary" onclick="closeRateModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/js/nav.js"></script>
+<script src="/js/my-bookings.js"></script>
+</body>
+</html>

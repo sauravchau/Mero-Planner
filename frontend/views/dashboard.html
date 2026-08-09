@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard – Mero Planner</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/dashboard.css"/>
+  <link rel="stylesheet" href="/css/app.css"/>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo">🗓️</div>
+      <div>
+        <div class="sidebar-title">Mero Planner</div>
+        <div class="sidebar-sub">मेरो प्लानर</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <p class="nav-section-label">Main</p>
+      <a href="/dashboard" class="nav-item active">📊 Dashboard</a>
+      <a href="/my-events.html" class="nav-item">📅 My Events <span class="nav-count" id="navEventCount">0</span></a>
+      <a href="/guest-list.html" class="nav-item">👥 Guest List</a>
+
+      <p class="nav-section-label">Management</p>
+      <a href="/budget.html" class="nav-item">💰 Budget</a>
+      <a href="/vendors.html" class="nav-item">🏪 Vendors</a>
+      <a href="/checklist.html" class="nav-item">✅ Checklists</a>
+     
+
+      <a href="/logout" class="nav-item logout">🚪 Logout</a>
+    </nav>
+  </aside>
+
+
+  <div class="main-content">
+
+    <header class="topbar">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <h2 class="page-title">Dashboard</h2>
+
+      <div class="topbar-right">
+        <button class="btn-new-event" onclick="window.location.href='/create-event.html'">+ New Event</button>
+      </div>
+    </header>
+
+    <div class="content-area">
+
+      <div id="alertBox" class="alert-msg"></div>
+
+      <div class="welcome-card">
+        <div class="welcome-text">
+          <h3>Namaste, <span id="welcomeName">User</span> 🙏</h3>
+          <p>You have <strong><span id="upcomingCountText">0</span> upcoming events</strong> this month. Stay on track with your planning!</p>
+        </div>
+        <div class="welcome-stats">
+          <div class="wstat"><span id="guestsConfirmedStat">0</span><small>Guests Confirmed</small></div>
+          <div class="wstat"><span id="tasksDonePct">0%</span><small>Budget Used</small></div>
+          <div class="wstat"><span id="totalEventsStat">0</span><small>Total Events</small></div>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon red">🔥</div>
+          <div class="stat-value" id="statTotalBudget">Rs 0</div>
+          <div class="stat-label">Total Budget</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">💵</div>
+          <div class="stat-value" id="statSpent">Rs 0</div>
+          <div class="stat-label">Spent So Far</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon blue">👥</div>
+          <div class="stat-value" id="statGuests">0 / 0</div>
+          <div class="stat-label">Guests Confirmed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon gold">📅</div>
+          <div class="stat-value" id="statEvents">0</div>
+          <div class="stat-label">Total Events</div>
+        </div>
+      </div>
+
+      <div class="mid-row">
+
+        <div class="card events-card">
+          <div class="card-header"><h4>My Events</h4><a href="/my-events.html" class="view-all">View all →</a></div>
+          <div id="eventsPreview"></div>
+          <div id="eventsPreviewEmpty" class="empty-state" style="display:none; padding:20px;">
+            No events yet. <a href="/create-event.html">Create your first event</a>.
+          </div>
+        </div>
+
+        <!-- Budget Overview -->
+        <div class="card budget-card">
+          <div class="card-header"><h4>Budget Overview</h4><a href="/budget.html" class="view-all">Details →</a></div>
+          <div class="budget-total" id="budgetTotalText">Rs 0<span>spent of Rs 0 total</span></div>
+          <div class="donut-wrap">
+            <div class="donut" id="budgetDonut"></div>
+            <div class="donut-label" id="budgetDonutLabel">0%<br/><small>used</small></div>
+          </div>
+          <div class="budget-categories" id="budgetCategoriesList"></div>
+        </div>
+
+      </div>
+
+      <div class="bottom-row">
+
+        <div class="card schedule-card">
+          <div class="card-header"><h4>Guest Summary</h4></div>
+          <div class="schedule-item"><div class="stime" id="guestTotalNum">0</div><div class="sline"></div><div class="sdesc">Total Guests</div></div>
+          <div class="schedule-item"><div class="stime" id="guestInvitedNum">0</div><div class="sline"></div><div class="sdesc">Invitations Sent</div></div>
+          <div class="schedule-item"><div class="stime" id="guestConfirmedNum">0</div><div class="sline"></div><div class="sdesc">RSVP Confirmed</div></div>
+          <div class="schedule-item"><div class="stime" id="guestPendingNum">0</div><div class="sline"></div><div class="sdesc">Pending Invitations</div></div>
+        </div>
+
+        <div class="card activity-card">
+          <div class="card-header"><h4>Event Status Breakdown</h4></div>
+          <div class="activity-item"><div class="act-icon blue">📅</div><div class="act-text"><strong id="statUpcoming">0</strong> Upcoming events</div></div>
+          <div class="activity-item"><div class="act-icon orange">🚧</div><div class="act-text"><strong id="statInProgress">0</strong> In Progress events</div></div>
+          <div class="activity-item"><div class="act-icon green">✅</div><div class="act-text"><strong id="statCompleted">0</strong> Completed events</div></div>
+          <div class="activity-item"><div class="act-icon red">🚫</div><div class="act-text"><strong id="statCancelled">0</strong> Cancelled events</div></div>
+        </div>
+
+        <div class="card checklist-card">
+          <div class="card-header"><h4>Quick Links</h4></div>
+          <div class="check-item"><a href="/create-event.html" style="color:#c0392b;text-decoration:none;font-weight:600;">➕ Create a new event</a></div>
+          <div class="check-item"><a href="/guest-list.html" style="color:#444;text-decoration:none;">👥 Manage guest list</a></div>
+          <div class="check-item"><a href="/budget.html" style="color:#444;text-decoration:none;">💰 Manage budget</a></div>
+          <div class="checklist-footer">Everything here is live from your database.</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/nav.js"></script>
+<script src="/js/dashboard.js"></script>
+</body>
+</html>

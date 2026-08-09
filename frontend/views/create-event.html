@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Event – Mero Planner</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/dashboard.css"/>
+  <link rel="stylesheet" href="/css/app.css"/>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo">🗓️</div>
+      <div>
+        <div class="sidebar-title">Mero Planner</div>
+        <div class="sidebar-sub">मेरो प्लानर</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <p class="nav-section-label">Main</p>
+      <a href="/dashboard" class="nav-item">📊 Dashboard</a>
+      <a href="/my-events.html" class="nav-item active">📅 My Events <span class="nav-count" id="navEventCount">0</span></a>
+      <a href="/guest-list.html" class="nav-item">👥 Guest List</a>
+
+      <p class="nav-section-label">Management</p>
+      <a href="/budget.html" class="nav-item">💰 Budget</a>
+      <a href="/vendors.html" class="nav-item">🏪 Vendors</a>
+      <a href="/checklist.html" class="nav-item">✅ Checklists</a>
+    
+
+
+
+      <a href="/logout" class="nav-item logout">🚪 Logout</a>
+    </nav>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <h2 class="page-title">Create Event</h2>
+    </header>
+
+    <div class="content-area">
+      <div id="alertBox" class="alert-msg"></div>
+
+      <div class="card" style="max-width:760px;">
+        <form id="createEventForm">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Event Name <span class="req">*</span></label>
+              <input type="text" name="event_name" id="event_name"/>
+              <span class="form-error" data-error-for="event_name"></span>
+            </div>
+            <div class="form-group">
+              <label>Category <span class="req">*</span></label>
+              <select name="category" id="category">
+                <option value="">Select category…</option>
+                <option value="Wedding">Wedding</option>
+                <option value="Engagement">Engagement</option>
+                <option value="Mehendi">Mehendi</option>
+                <option value="Sangeet">Sangeet</option>
+                <option value="Reception">Reception</option>
+                <option value="Anniversary">Anniversary</option>
+                <option value="Birthday">Birthday</option>
+                <option value="Baby Shower">Baby Shower</option>
+                <option value="Corporate Event">Corporate Event</option>
+                <option value="Post-Wedding Party">Post-Wedding Party</option>
+                <option value="Other">Other</option>
+              </select>
+              <span class="form-error" data-error-for="category"></span>
+            </div>
+            <div class="form-group">
+              <label>Event Location <span class="req">*</span></label>
+              <input type="text" name="location" id="location"/>
+              <span class="form-error" data-error-for="location"></span>
+            </div>
+            <div class="form-group">
+              <label>Event Date <span class="req">*</span></label>
+              <input type="date" name="event_date" id="event_date"/>
+              <span class="form-error" data-error-for="event_date"></span>
+            </div>
+            <div class="form-group">
+              <label>Event Time <span class="req">*</span></label>
+              <input type="time" name="event_time" id="event_time"/>
+              <span class="form-error" data-error-for="event_time"></span>
+            </div>
+            <div class="form-group">
+              <label>Estimated Budget (Rs) <span class="req">*</span></label>
+              <input type="number" name="estimated_budget" id="estimated_budget" min="0" step="0.01"/>
+              <span class="form-error" data-error-for="estimated_budget"></span>
+            </div>
+            <div class="form-group">
+              <label>Expected Guests <span class="req">*</span></label>
+              <input type="number" name="expected_guests" id="expected_guests" min="1"/>
+              <span class="form-error" data-error-for="expected_guests"></span>
+            </div>
+            <div class="form-group full">
+              <label>Description (Optional)</label>
+              <textarea name="description" id="description" rows="4" placeholder="Any notes about this event…"></textarea>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn-primary" id="submitBtn">Create Event</button>
+            <button type="button" class="btn-secondary" onclick="window.location.href='/my-events.html'">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/nav.js"></script>
+<script src="/js/create-event.js"></script>
+</body>
+</html>

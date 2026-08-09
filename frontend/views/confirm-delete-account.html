@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mero Planner – Confirm Account Deletion</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/login.css" />
+  <style>
+    body { background: #1a0a0a; }
+    .solo-card {
+      width: 420px;
+      background: #fffaf3;
+      border-radius: 16px;
+      padding: 44px 40px;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+    }
+    .solo-card .logo-row { text-align: center; margin-bottom: 20px; }
+    .solo-card .logo-icon {
+      width: 52px; height: 52px;
+      background: linear-gradient(135deg, #c0392b, #e74c3c);
+      border-radius: 14px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 26px;
+      box-shadow: 0 4px 18px rgba(192, 57, 43, 0.45);
+    }
+    .solo-card h2 { text-align: center; }
+    .solo-card .subtitle { text-align: center; margin-bottom: 24px; }
+    .btn-confirm-delete {
+      width: 100%; background: #c0392b; color: #fff; border: none; border-radius: 8px;
+      padding: 13px 18px; font-size: 15px; font-weight: 600; cursor: pointer;
+    }
+    .btn-confirm-delete:hover { background: #a5301f; }
+    .btn-confirm-delete:disabled { opacity: 0.6; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+
+<div class="solo-card">
+  <div class="logo-row"><div class="logo-icon">🗑️</div></div>
+  <h2>Delete your account?</h2>
+  <p class="subtitle">This will permanently remove your account and all of its data. This can't be undone.</p>
+
+  <div class="alert" id="alert"></div>
+
+  <div id="formBody">
+    <button class="btn-confirm-delete" id="confirmBtn" onclick="handleConfirmDeletion()">
+      Yes, permanently delete my account
+    </button>
+    <p class="signup-link">Changed your mind? <a href="/dashboard">Go back</a></p>
+  </div>
+</div>
+
+<script src="/js/confirm-delete-account.js"></script>
+</body>
+</html>

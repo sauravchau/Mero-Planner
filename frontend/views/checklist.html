@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Checklist – Mero Planner</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/dashboard.css"/>
+  <link rel="stylesheet" href="/css/app.css"/>
+  <link rel="stylesheet" href="/css/checklist.css"/>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo">🗓️</div>
+      <div>
+        <div class="sidebar-title">Mero Planner</div>
+        <div class="sidebar-sub">मेरो प्लानर</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <p class="nav-section-label">Main</p>
+      <a href="/dashboard" class="nav-item">📊 Dashboard</a>
+      <a href="/my-events.html" class="nav-item">📅 My Events <span class="nav-count" id="navEventCount">0</span></a>
+      <a href="/guest-list.html" class="nav-item">👥 Guest List</a>
+
+      <p class="nav-section-label">Management</p>
+      <a href="/budget.html" class="nav-item">💰 Budget</a>
+      <a href="/vendors.html" class="nav-item">🏪 Vendors</a>
+      <a href="/checklist.html" class="nav-item active">✅ Checklists</a>
+
+  
+  
+      <a href="/logout" class="nav-item logout">🚪 Logout</a>
+    </nav>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <h2 class="page-title">Checklist</h2>
+      <div class="toolbar-filters" style="margin-left:16px;">
+        <select id="eventSelect" style="min-width:220px;"><option value="">Select an event…</option></select>
+      </div>
+      <div class="topbar-right" style="margin-left:auto; display:flex; gap:10px;">
+        <button class="btn-primary" id="addTaskBtn">+ Add Task</button>
+      </div>
+    </header>
+
+    <div class="content-area">
+      <div id="alertBox" class="alert-msg"></div>
+      <div id="noEventState" class="empty-state">Select or create an event above to manage its checklist.</div>
+
+      <div id="checklistContent" style="display:none;">
+
+        <div class="card checklist-progress-card">
+          <div class="card-header">
+            <h4>Progress</h4>
+            <span id="progressText" class="progress-text"></span>
+          </div>
+          <div class="progress-bar-track">
+            <div id="progressBar" class="progress-bar-fill"></div>
+          </div>
+          <div id="summaryPills" class="summary-pills"></div>
+        </div>
+
+        <div class="page-toolbar checklist-toolbar">
+          <div class="toolbar-search">
+            <input type="text" id="searchInput" placeholder="🔍 Search tasks…"/>
+          </div>
+          <div class="toolbar-filters">
+            <select id="categoryFilter"><option value="">All Categories</option></select>
+            <select id="statusFilter">
+              <option value="">All Statuses</option>
+              <option value="pending">Pending</option>
+              <option value="in_progress">In Progress</option>
+              <option value="completed">Completed</option>
+            </select>
+            <select id="sortBy">
+              <option value="due_date">Sort: Due Date</option>
+              <option value="priority">Sort: Priority</option>
+              <option value="category">Sort: Category</option>
+              <option value="status">Sort: Status</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Task grid -->
+        <div id="taskGrid" class="task-grid"></div>
+        <div id="noResultsState" class="empty-state" style="display:none;">No tasks match your filters.</div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="taskModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="taskModalTitle">Add Task</h3>
+      <button class="modal-close" id="taskModalCloseBtn">✕</button>
+    </div>
+    <div id="taskFormError" class="form-error"></div>
+    <input type="hidden" id="taskId"/>
+    <div class="form-group">
+      <label>Task Title <span class="req">*</span></label>
+      <input type="text" id="taskTitle" placeholder="e.g. Book mehendi artist"/>
+    </div>
+    <div class="form-group">
+      <label>Category <span class="req">*</span></label>
+      <input type="text" id="taskCategory" list="categoryOptions" placeholder="e.g. Venue"/>
+      <datalist id="categoryOptions"></datalist>
+    </div>
+    <div class="form-group">
+      <label>Priority</label>
+      <select id="taskPriority">
+        <option value="low">Low</option>
+        <option value="medium" selected>Medium</option>
+        <option value="high">High</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Due Date <span class="req">*</span></label>
+      <input type="date" id="taskDueDate"/>
+    </div>
+    <div class="form-group">
+      <label>Status</label>
+      <select id="taskStatus">
+        <option value="pending">Pending</option>
+        <option value="in_progress">In Progress</option>
+        <option value="completed">Completed</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Assigned To</label>
+      <input type="text" id="taskAssignedTo" placeholder="e.g. Sita"/>
+    </div>
+    <div class="form-group">
+      <label>Notes</label>
+      <textarea id="taskNotes" rows="2"></textarea>
+    </div>
+    <div class="form-actions">
+      <button type="button" class="btn-primary" id="taskSaveBtn">Save Task</button>
+      <button type="button" class="btn-secondary" id="taskCancelBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/nav.js"></script>
+<script src="/js/checklist.js"></script>
+</body>
+</html>

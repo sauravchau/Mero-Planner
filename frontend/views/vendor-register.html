@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vendor Registration – Mero Planner</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/login.css"/>
+  <link rel="stylesheet" href="/css/app.css"/>
+  <style>
+    .card { width: 920px; }
+    .right { overflow-y: auto; max-height: 90vh; }
+    .form-body .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-body .form-group.full { grid-column: 1 / -1; }
+    /* app.css's generic input padding overrides login.css's icon spacing —
+       restore it here so placeholder text doesn't sit under the icon. */
+    .form-body .input-wrap input,
+    .form-body .input-wrap select {
+      padding-left: 40px !important;
+      border: none !important;
+      background: transparent !important;
+    }
+    .form-body textarea {
+      padding: 10px 12px;
+      border: 1.5px solid #f0e8da;
+      border-radius: 8px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13.5px;
+    }
+  </style>
+</head>
+<body>
+<div class="card">
+
+  <div class="left">
+    <div class="brand">
+      <div class="logo-icon">🏪</div>
+      <h1>Mero Planner</h1>
+      <div class="brand-nepali">मेरो प्लानर</div>
+      <div class="brand-tagline">List your business and get discovered by couples and families planning events across Nepal.</div>
+    </div>
+    <div class="features">
+      <div class="feature-item"><div class="feature-icon fi-red">📝</div>Simple self-registration</div>
+      <div class="feature-item"><div class="feature-icon fi-blue">✅</div>Reviewed by our admin team</div>
+      <div class="feature-item"><div class="feature-icon fi-green">📖</div>Manage bookings in one place</div>
+      <div class="feature-item"><div class="feature-icon fi-gold">⭐</div>Build your rating with every event</div>
+    </div>
+  </div>
+
+  <div class="right">
+    <h2>Register your business</h2>
+    <p class="subtitle">Your listing goes live once an admin approves it</p>
+
+    <div class="alert" id="alert"></div>
+
+    <div class="form-body">
+      <p style="font-size:12px;font-weight:700;color:#c0392b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Account details</p>
+      <div class="form-grid">
+        <div class="form-group full">
+          <div class="field-label">Your Full Name</div>
+          <div class="input-wrap"><span class="icon">👤</span><input type="text" id="full_name" placeholder="Owner / contact person"/></div>
+        </div>
+        <div class="form-group full">
+          <div class="field-label">Email Address</div>
+          <div class="input-wrap"><span class="icon">✉️</span><input type="email" id="email" placeholder="you@business.com"/></div>
+        </div>
+        <div class="form-group">
+          <div class="field-label">Password</div>
+          <div class="input-wrap"><span class="icon">🔒</span><input type="password" id="password" placeholder="Min. 6 characters"/></div>
+        </div>
+        <div class="form-group">
+          <div class="field-label">Confirm Password</div>
+          <div class="input-wrap"><span class="icon">🔒</span><input type="password" id="confirm_password" placeholder="Re-enter password"/></div>
+        </div>
+      </div>
+
+      <p style="font-size:12px;font-weight:700;color:#c0392b;text-transform:uppercase;letter-spacing:.5px;margin:18px 0 8px;">Business details</p>
+      <div class="form-grid">
+        <div class="form-group full">
+          <div class="field-label">Business / Vendor Name</div>
+          <div class="input-wrap"><span class="icon">🏪</span><input type="text" id="vendor_name" placeholder="e.g. Golden Palace Banquet"/></div>
+        </div>
+        <div class="form-group">
+          <div class="field-label">Category</div>
+          <div class="input-wrap"><span class="icon">🏷️</span>
+            <select id="category" style="border:none;outline:none;width:100%;font-family:'Inter',sans-serif;">
+              <option value="Venue">Venue</option>
+              <option value="Food and Catering">Food and Catering</option>
+              <option value="Decoration">Decoration</option>
+              <option value="Photography and Videography">Photography and Videography</option>
+              <option value="Makeup and Mehendi">Makeup and Mehendi</option>
+              <option value="Entertainment">Entertainment</option>
+              <option value="Transportation">Transportation</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="field-label">Location</div>
+          <div class="input-wrap"><span class="icon">📍</span><input type="text" id="location" placeholder="e.g. Lakeside, Pokhara"/></div>
+        </div>
+        <div class="form-group">
+          <div class="field-label">Starting Price (NPR)</div>
+          <div class="input-wrap"><span class="icon">💰</span><input type="number" id="price_npr" min="1" placeholder="e.g. 150000"/></div>
+        </div>
+        <div class="form-group">
+          <div class="field-label">Contact Phone</div>
+          <div class="input-wrap"><span class="icon">📞</span><input type="text" id="contact_phone" placeholder="98XXXXXXXX"/></div>
+        </div>
+        <div class="form-group full">
+          <div class="field-label">Description</div>
+          <textarea id="description" rows="3" placeholder="Tell couples what makes your business great…" style="width:100%;padding:10px 12px;border:1.5px solid #f0e8da;border-radius:8px;font-family:'Inter',sans-serif;font-size:13.5px;"></textarea>
+        </div>
+      </div>
+
+      <button class="btn-login" id="registerBtn" onclick="handleVendorRegister()" style="margin-top:16px;">Submit for Approval</button>
+      <p class="signup-link">Already registered? <a href="/login">Login</a></p>
+    </div>
+  </div>
+
+</div>
+<script src="/js/vendor-register.js"></script>
+</body>
+</html>
